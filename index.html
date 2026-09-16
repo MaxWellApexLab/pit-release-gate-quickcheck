@@ -115,7 +115,7 @@
   .scenario-grid { display: flex; flex-direction: column; gap: 10px; margin: 10px 0; }
   @media (min-width: 640px) { .scenario-grid { flex-direction: row; } }
   .scenario-btn {
-    display: block; width: 100%; flex: 1 1 auto; min-height: 48px;
+    display: block; width: 100%; flex: 1 1 auto; min-height: 56px;
     font-size: 0.95rem; font-weight: 600; padding: 8px 14px;
     border: 1px solid var(--border); border-radius: 10px;
     background: var(--box-bg); color: var(--fg); cursor: pointer;
@@ -146,14 +146,27 @@
 <body>
 <div class="wrap">
   <h1>pit-release-gate quick check</h1>
+  <p class="disclosure" id="disclosure">
+    This page reports a visit, basic device information (time zone, browser, screen size) and the
+    receipt text to its author. It sends nothing else.
+  </p>
+
+  <!-- ============================================================= -->
+  <div class="cta-wrap">
+    <button class="cta-btn" id="ctaBtn">See the paper, the code, and a live run</button>
+    <div class="cta-caption">Opens the paper and the code in new tabs and starts a live run of the notebook.</div>
+  </div>
+
+  <div class="scenario-grid" id="scenarioButtons">
+    <button class="scenario-btn" data-scenario="llm_eval" disabled>Run again: LLM eval logs</button>
+    <button class="scenario-btn" data-scenario="ab_test" disabled>Run again: A/B test</button>
+    <button class="scenario-btn" data-scenario="retention" disabled>Run again: Retention metric</button>
+  </div>
+
   <p class="intro">
     This page opens, downloads and verifies the public pit-release-gate release, runs its own
     tests, and applies its screen to three synthetic business scenarios, automatically, in your
     browser, and reports the result below and to its author.
-  </p>
-  <p class="disclosure" id="disclosure">
-    This page reports a visit, basic device information (time zone, browser, screen size) and the
-    receipt text to its author. It sends nothing else.
   </p>
   <div class="meta">
     Source package: <a href="https://pypi.org/project/pit-release-gate/0.1.0/" target="_blank" rel="noopener">pit-release-gate 0.1.0 on PyPI</a>
@@ -186,6 +199,11 @@
   </details>
   <h3>Three scenarios</h3>
   <div id="refScenarios"></div>
+
+  <!-- ============================================================= -->
+  <h2>Live run in your browser (Stage 2, best effort)</h2>
+  <div id="stage2Progress">Loading runtime in the background...</div>
+  <div id="stage2Content"></div>
 
   <!-- ============================================================= -->
   <h2>What this runs</h2>
@@ -229,20 +247,6 @@
   </details>
 
   <!-- ============================================================= -->
-  <h2>Live run in your browser (Stage 2, best effort)</h2>
-  <div id="stage2Progress">Loading runtime in the background...</div>
-  <div id="stage2Content"></div>
-  <div class="scenario-grid" id="scenarioButtons">
-    <button class="scenario-btn" data-scenario="llm_eval" disabled>Run again: LLM eval logs</button>
-    <button class="scenario-btn" data-scenario="ab_test" disabled>Run again: A/B test</button>
-    <button class="scenario-btn" data-scenario="retention" disabled>Run again: Retention metric</button>
-  </div>
-
-  <div class="cta-wrap">
-    <button class="cta-btn" id="ctaBtn">See the paper, the code, and a live run</button>
-    <div class="cta-caption">Opens the paper and the code in new tabs and starts a live run of the notebook.</div>
-  </div>
-
   <footer>
     Everything above runs client side. Nothing of yours is used or uploaded. View source to see
     exactly what runs. Add <code>?report=0</code> to the URL to disable reporting.
