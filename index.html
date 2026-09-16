@@ -134,15 +134,17 @@
   .scenario-btn:active { opacity: 0.8; }
   .scenario-btn:disabled { opacity: 0.5; cursor: default; }
   #stage2Progress { font-size: 0.85rem; color: var(--muted); margin: 4px 0 12px 0; min-height: 1.2em; }
-  .cta-wrap { margin-top: 24px; text-align: center; }
-  .cta-btn {
-    display: inline-block; width: 100%; max-width: 480px;
-    font-size: 1.1rem; font-weight: 700; padding: 18px 20px;
-    border: none; border-radius: 12px;
-    background: var(--accent); color: var(--bg); cursor: pointer;
+  .action-grid { display: flex; flex-direction: column; gap: 10px; margin: 20px 0 10px 0; }
+  @media (min-width: 640px) { .action-grid { flex-direction: row; } }
+  .action-btn {
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    width: 100%; flex: 1 1 auto; min-height: 48px; box-sizing: border-box;
+    font-size: 0.95rem; font-weight: 600; padding: 8px 14px;
+    border: 1px solid var(--border); border-radius: 10px;
+    background: var(--box-bg); color: var(--fg); text-decoration: none; cursor: pointer;
   }
-  .cta-btn:active { opacity: 0.85; }
-  .cta-caption { font-size: 0.82rem; color: var(--muted); margin-top: 8px; }
+  .action-btn:active { opacity: 0.8; }
+  .action-btn:disabled { opacity: 0.5; cursor: default; }
   .figshare-embed { width: 100%; height: 420px; border: 1px solid var(--border); border-radius: 8px; }
   .pdf-embed { width: 100%; height: 480px; border: 1px solid var(--border); border-radius: 8px; }
   .dl-pdf-btn {
@@ -163,21 +165,24 @@
   </p>
 
   <!-- ============================================================= -->
-  <div class="cta-wrap">
-    <button class="cta-btn" id="ctaBtn">See the paper, the code, and a live run</button>
-    <div class="cta-caption">Opens the paper, the code, and a live notebook run in new tabs. The notebook takes 20 to 60 seconds to start.</div>
+  <div class="action-grid" id="actionRow">
+    <button class="action-btn" id="runLiveBtn">Run it live in your browser (about 1 minute)</button>
+    <a class="action-btn" href="https://mybinder.org/v2/gist/MaxWellApexLab/fb6258ac4f36db0da2ee31da6221ba5c/HEAD?urlpath=voila%2Frender%2Fquickstart_pit_release_gate.ipynb" target="_blank" rel="noopener">Live notebook (Binder, 20 to 60 s)</a>
+    <a class="action-btn" href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7016199" target="_blank" rel="noopener">Paper on SSRN</a>
+    <a class="action-btn" href="https://github.com/MaxWellApexLab/pit-release-gate" target="_blank" rel="noopener">Code on GitHub</a>
   </div>
 
   <div class="scenario-grid" id="scenarioButtons">
-    <button class="scenario-btn" data-scenario="llm_eval" disabled>Run again: LLM eval logs</button>
-    <button class="scenario-btn" data-scenario="ab_test" disabled>Run again: A/B test</button>
-    <button class="scenario-btn" data-scenario="retention" disabled>Run again: Retention metric</button>
+    <button class="scenario-btn" data-scenario="llm_eval">Run again: LLM eval logs</button>
+    <button class="scenario-btn" data-scenario="ab_test">Run again: A/B test</button>
+    <button class="scenario-btn" data-scenario="retention">Run again: Retention metric</button>
   </div>
 
   <p class="intro">
-    This page opens, downloads and verifies the public pit-release-gate release, runs its own
-    tests, and applies its screen to three synthetic business scenarios, automatically, in your
-    browser, and reports the result below and to its author.
+    This page downloads and verifies the public pit-release-gate release in your browser
+    automatically, no tap needed. Running its own tests and applying its screen to three
+    synthetic business scenarios is heavier, so that step only starts when you tap "Run it
+    live in your browser" above. Either way, the result is reported below and to its author.
   </p>
   <div class="meta">
     Source package: <a href="https://pypi.org/project/pit-release-gate/0.1.0/" target="_blank" rel="noopener">pit-release-gate 0.1.0 on PyPI</a>
@@ -218,7 +223,7 @@
 
   <!-- ============================================================= -->
   <h2>Live run in your browser (Stage 2, best effort)</h2>
-  <div id="stage2Progress">Loading runtime in the background...</div>
+  <div id="stage2Progress">Not started. Tap "Run it live in your browser" above to run this in your browser (about 1 minute).</div>
   <div id="stage2Content"></div>
 
   <!-- ============================================================= -->
@@ -605,9 +610,6 @@ log("Setup complete.")
   var WORKER_BASE = window.WORKER_BASE;
   var PAGE_URL = window.PAGE_URL;
   var OG_IMAGE_URL = window.OG_IMAGE_URL;
-  var SSRN_MAIN_URL = 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7016199';
-  var GITHUB_REPO_URL = 'https://github.com/MaxWellApexLab/pit-release-gate';
-  var BINDER_URL = 'https://mybinder.org/v2/gist/MaxWellApexLab/fb6258ac4f36db0da2ee31da6221ba5c/HEAD?urlpath=voila%2Frender%2Fquickstart_pit_release_gate.ipynb';
 
   var DATA = JSON.parse(document.getElementById('page-data').textContent);
 
@@ -941,24 +943,55 @@ log("Setup complete.")
       document.querySelectorAll('.scenario-btn').forEach(function (b) { b.disabled = false; });
     });
   };
+
+  // ---------------------------------------------------------------
+  // Stage 2 is manual only. Nothing above this point loads the runtime or
+  // runs any Python; the wasm/wheels named in the <link rel=preload> tags
+  // in <head> may already be sitting in the browser's cache, but nothing
+  // executes them until the visitor taps a button. ensureStage2Started()
+  // is the single entry point, shared by the live-run button and the
+  // scenario buttons below, so a second tap while it is already running
+  // (or already done) is a no-op rather than a second run.
+  // ---------------------------------------------------------------
+  var stage2Promise = null;
+  function ensureStage2Started() {
+    if (!stage2Promise) {
+      stage2Promise = runStage2().then(function () {
+        if (!stage2State.ready) stage2Promise = null; // allow retry after a failure
+      });
+    }
+    return stage2Promise;
+  }
+
+  var runLiveBtn = document.getElementById('runLiveBtn');
+  var RUN_LIVE_LABEL = runLiveBtn.textContent;
+  runLiveBtn.addEventListener('click', function () {
+    runLiveBtn.disabled = true;
+    runLiveBtn.textContent = 'Running...';
+    ensureStage2Started().then(function () {
+      runLiveBtn.textContent = stage2State.ready ? 'Done' : RUN_LIVE_LABEL;
+      runLiveBtn.disabled = stage2State.ready;
+    });
+  });
+
   document.querySelectorAll('.scenario-btn').forEach(function (btn) {
-    btn.addEventListener('click', function () { window.runScenarioAgain(btn.dataset.scenario); });
-  });
-
-  window.addEventListener('load', function () {
-    runStage2();
-  });
-
-  // ---------------------------------------------------------------
-  // Chained CTA. Must be synchronous inside the click handler. All three
-  // destinations open in new tabs; the current tab never navigates away.
-  // Binder opens first because it is the one that needs the most time to
-  // start.
-  // ---------------------------------------------------------------
-  document.getElementById('ctaBtn').addEventListener('click', function () {
-    try { window.open(BINDER_URL, '_blank', 'noopener'); } catch (e) {}
-    try { window.open(SSRN_MAIN_URL, '_blank', 'noopener'); } catch (e) {}
-    try { window.open(GITHUB_REPO_URL, '_blank', 'noopener'); } catch (e) {}
+    btn.addEventListener('click', function () {
+      var key = btn.dataset.scenario;
+      if (stage2State.ready) {
+        window.runScenarioAgain(key);
+        return;
+      }
+      // Tapped before Stage 2 has run: start it (the main receipt), then
+      // run this scenario again once it is ready.
+      document.querySelectorAll('.scenario-btn').forEach(function (b) { b.disabled = true; });
+      runLiveBtn.disabled = true;
+      runLiveBtn.textContent = 'Running...';
+      ensureStage2Started().then(function () {
+        runLiveBtn.textContent = stage2State.ready ? 'Done' : RUN_LIVE_LABEL;
+        runLiveBtn.disabled = stage2State.ready;
+        if (stage2State.ready) window.runScenarioAgain(key);
+      });
+    });
   });
 })();
 </script>
