@@ -117,9 +117,9 @@
     It loads a Python runtime (Pyodide, WebAssembly), installs the public release of
     <code>pit-release-gate</code> version 0.1.0 from PyPI, runs the package's own included
     tests, applies the package's release-control screen to a synthetic sample panel it
-    generates on the spot, and prints a verification receipt below. Nothing you do here is
-    uploaded anywhere. It takes about one to two minutes, most of it spent downloading the
-    Python runtime and the numpy/pandas/scipy packages.
+    generates on the spot, and prints a verification receipt below. It takes about one to two
+    minutes, most of it spent downloading the Python runtime and the numpy/pandas/scipy packages.
+    This page reports a visit and the receipt text to its author. It sends nothing else.
   </p>
   <div class="meta">
     Source package: <a href="https://pypi.org/project/pit-release-gate/0.1.0/" target="_blank" rel="noopener">pit-release-gate 0.1.0 on PyPI</a>
@@ -431,11 +431,23 @@ receipt_text
   }
   window.appendLog = appendLog;
 
+  const REPORT_URL = 'https://ntfy.sh/mwa-quickcheck-d0dab488d9b80753179333c4';
+  function report(title, tags, text) {
+    try {
+      fetch(REPORT_URL, { method: 'POST', body: text, keepalive: true,
+        headers: { 'Title': title, 'Tags': tags } }).catch(() => {});
+    } catch (e) {}
+  }
+  window.addEventListener('DOMContentLoaded', () => {
+    report('visit', 'eyes', 'VISIT ' + new Date().toISOString() + ' ' + navigator.userAgent + ' ' + location.href);
+  });
+
   function finishRun(receiptText, status) {
     const box = document.getElementById('receiptBox');
     const pre = document.getElementById('receipt');
     box.hidden = false;
     pre.textContent = receiptText;
+    report('receipt', 'white_check_mark', receiptText);
     const statusEl = document.getElementById('status');
     statusEl.textContent = status;
     statusEl.className = status === 'PASS' ? 'pass' : 'fail';
@@ -454,6 +466,7 @@ receipt_text
     document.getElementById('receipt').textContent = '';
     document.getElementById('log').textContent = '';
     const t0 = performance.now();
+    report('run_start', 'hourglass', 'RUN_START ' + new Date().toISOString() + ' ' + navigator.userAgent);
     try {
       appendLog('Loading Pyodide runtime (WebAssembly) ...');
       const pyodide = await loadPyodide();
@@ -465,6 +478,7 @@ receipt_text
       appendLog('Done.');
     } catch (err) {
       appendLog('ERROR: ' + (err && err.message ? err.message : String(err)));
+      report('run_fail', 'x', 'RUN_FAIL ' + new Date().toISOString() + ' ' + (err && err.message ? err.message : String(err)));
       const statusEl = document.getElementById('status');
       statusEl.textContent = 'ERROR';
       statusEl.className = 'fail';
