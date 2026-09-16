@@ -112,6 +112,17 @@
   .readme-body img { max-width: 100%; }
   .readme-body pre { overflow-x: auto; background: var(--bg); padding: 8px; border-radius: 4px; }
   .readme-body code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  details.section-details {
+    border: 1px solid var(--border); border-radius: 8px; background: var(--box-bg);
+    padding: 4px 14px; margin: 14px 0;
+  }
+  details > summary {
+    cursor: pointer; font-weight: 600; min-height: 48px;
+    display: flex; align-items: center; padding: 6px 4px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  details > summary:active { opacity: 0.8; }
+  .details-body { margin: 4px 0 10px 0; }
   .scenario-grid { display: flex; flex-direction: column; gap: 10px; margin: 10px 0; }
   @media (min-width: 640px) { .scenario-grid { flex-direction: row; } }
   .scenario-btn {
@@ -154,7 +165,7 @@
   <!-- ============================================================= -->
   <div class="cta-wrap">
     <button class="cta-btn" id="ctaBtn">See the paper, the code, and a live run</button>
-    <div class="cta-caption">Opens the paper and the code in new tabs and starts a live run of the notebook.</div>
+    <div class="cta-caption">Opens the paper, the code, and a live notebook run in new tabs. The notebook takes 20 to 60 seconds to start.</div>
   </div>
 
   <div class="scenario-grid" id="scenarioButtons">
@@ -179,26 +190,31 @@
   <pre class="box" id="stage1Receipt" hidden></pre>
 
   <!-- ============================================================= -->
-  <h2 id="refRunHeading">Reference run on the author's machine</h2>
-  <p class="note">
-    Precomputed by the page author in a native Python environment (not this browser) before
-    publishing, so this information is available the instant the page opens, independent of
-    whether Stage 2 below succeeds on your device.
-  </p>
-  <div class="kv" id="refRunMeta"></div>
-  <h3>8 included checks, direct call</h3>
-  <div class="kv" id="refTestSummary"></div>
-  <details>
-    <summary class="note" style="cursor:pointer">Per-test results</summary>
-    <pre class="box" id="refTestList"></pre>
+  <details class="section-details">
+    <summary>Reference run on the author's machine</summary>
+    <div class="details-body">
+      <h2 id="refRunHeading">Reference run on the author's machine</h2>
+      <p class="note">
+        Precomputed by the page author in a native Python environment (not this browser) before
+        publishing, so this information is available the instant the page opens, independent of
+        whether Stage 2 below succeeds on your device.
+      </p>
+      <div class="kv" id="refRunMeta"></div>
+      <h3>8 included checks, direct call</h3>
+      <div class="kv" id="refTestSummary"></div>
+      <details>
+        <summary class="note">Per-test results</summary>
+        <pre class="box" id="refTestList"></pre>
+      </details>
+      <h3>Default screen (<code>python -m pit_release_gate</code>)</h3>
+      <details>
+        <summary class="note">Show the full console table</summary>
+        <pre class="box" id="refDefaultScreen"></pre>
+      </details>
+      <h3>Three scenarios</h3>
+      <div id="refScenarios"></div>
+    </div>
   </details>
-  <h3>Default screen (<code>python -m pit_release_gate</code>)</h3>
-  <details>
-    <summary class="note" style="cursor:pointer">Show the full console table</summary>
-    <pre class="box" id="refDefaultScreen"></pre>
-  </details>
-  <h3>Three scenarios</h3>
-  <div id="refScenarios"></div>
 
   <!-- ============================================================= -->
   <h2>Live run in your browser (Stage 2, best effort)</h2>
@@ -206,43 +222,53 @@
   <div id="stage2Content"></div>
 
   <!-- ============================================================= -->
-  <h2>What this runs</h2>
-  <p class="intro">
-    pit-release-gate measures whether a cross-sectional signal's staggered arrival pattern is
-    correlated with its own regression residual, a property it calls susceptibility. A release
-    gate withholds only the signals whose susceptibility is above a threshold, waiting until enough
-    of the cross-section has arrived to remove the bias, while benign signals still release early.
-    A completeness monitor tracks what fraction of each period's cross-section has arrived so the
-    gate knows when it is safe to release. Below is the paper it comes from, the code, and (further
-    down) a live run of it in this browser.
-  </p>
-  <p class="note">
-    Paper preview below via figshare's own widget (counts as a view) and the PDF embedded directly
-    from figshare's download endpoint (counts as a download), with an inline attempt to pull the
-    PDF from SSRN and a visible fallback report of what SSRN returned.
-  </p>
-  <div id="ssrnInlineStatus" class="note">
-    SSRN inline attempt: checked at build time by opening the SSRN abstract page in an in-app
-    browser. SSRN sits behind a Cloudflare bot check that returns HTTP 403 to automated requests
-    (confirmed via response header <code>cf-mitigated: challenge</code>) and also sends
-    <code>X-Frame-Options: SAMEORIGIN</code>, which blocks embedding it in an iframe from this
-    origin regardless. Falling back to the figshare PDF below, this paper's own data-repository
-    copy, which does allow embedding.
-  </div>
-  <div id="paperEmbedWrap">
-    <iframe class="figshare-embed" src="https://widgets.figshare.com/articles/32952482/embed?show_title=1" allowfullscreen></iframe>
-    <div style="margin-top:8px;">
-      <a class="dl-pdf-btn" id="figsharePdfLink" href="https://ndownloader.figshare.com/files/67253204" target="_blank" rel="noopener">Download PDF</a>
+  <details class="section-details">
+    <summary>What this runs</summary>
+    <div class="details-body">
+      <p class="intro">
+        pit-release-gate measures whether a cross-sectional signal's staggered arrival pattern is
+        correlated with its own regression residual, a property it calls susceptibility. A release
+        gate withholds only the signals whose susceptibility is above a threshold, waiting until enough
+        of the cross-section has arrived to remove the bias, while benign signals still release early.
+        A completeness monitor tracks what fraction of each period's cross-section has arrived so the
+        gate knows when it is safe to release. Below is the paper it comes from, the code, and (further
+        down) a live run of it in this browser.
+      </p>
     </div>
-    <iframe class="pdf-embed" id="figsharePdfEmbed" src="https://ndownloader.figshare.com/files/67253204" title="Paper PDF"></iframe>
-  </div>
+  </details>
+
+  <details class="section-details">
+    <summary>Paper</summary>
+    <div class="details-body">
+      <p class="note">
+        Paper preview below via figshare's own widget (counts as a view) and the PDF embedded directly
+        from figshare's download endpoint (counts as a download), with an inline attempt to pull the
+        PDF from SSRN and a visible fallback report of what SSRN returned.
+      </p>
+      <div id="ssrnInlineStatus" class="note">
+        SSRN inline attempt: checked at build time by opening the SSRN abstract page in an in-app
+        browser. SSRN sits behind a Cloudflare bot check that returns HTTP 403 to automated requests
+        (confirmed via response header <code>cf-mitigated: challenge</code>) and also sends
+        <code>X-Frame-Options: SAMEORIGIN</code>, which blocks embedding it in an iframe from this
+        origin regardless. Falling back to the figshare PDF below, this paper's own data-repository
+        copy, which does allow embedding.
+      </div>
+      <div id="paperEmbedWrap">
+        <iframe class="figshare-embed" src="https://widgets.figshare.com/articles/32952482/embed?show_title=1" allowfullscreen></iframe>
+        <div style="margin-top:8px;">
+          <a class="dl-pdf-btn" id="figsharePdfLink" href="https://ndownloader.figshare.com/files/67253204" target="_blank" rel="noopener">Download PDF</a>
+        </div>
+        <iframe class="pdf-embed" id="figsharePdfEmbed" src="https://ndownloader.figshare.com/files/67253204" title="Paper PDF"></iframe>
+      </div>
+    </div>
+  </details>
 
   <h3>Papers</h3>
   <div id="paperCards"></div>
 
   <h3>Code</h3>
   <details class="readme" id="readmeDetails">
-    <summary>README, MaxWellApexLab/pit-release-gate</summary>
+    <summary>Code README</summary>
     <div class="readme-body" id="readmeBody"></div>
   </details>
 
@@ -650,16 +676,18 @@ log("Setup complete.")
   var refScenariosEl = document.getElementById('refScenarios');
   DATA.scenario_order.forEach(function (key) {
     var s = DATA.scenarios[key];
-    var box = el('div', 'card');
-    box.appendChild(el('h3', null, s.label));
-    box.appendChild(el('p', 'note', s.verdict));
+    var box = document.createElement('details');
+    box.className = 'card';
+    box.appendChild(el('summary', null, s.label));
+    var body = el('div', 'details-body');
+    body.appendChild(el('p', 'note', s.verdict));
     var det = document.createElement('details');
     var sum = el('summary', null, 'Full receipt');
-    sum.style.cursor = 'pointer';
     det.appendChild(sum);
     var pre = el('pre', 'box', s.receipt);
     det.appendChild(pre);
-    box.appendChild(det);
+    body.appendChild(det);
+    box.appendChild(body);
     refScenariosEl.appendChild(box);
   });
 
@@ -668,9 +696,11 @@ log("Setup complete.")
   // ---------------------------------------------------------------
   var paperCardsEl = document.getElementById('paperCards');
   DATA.papers.forEach(function (p) {
-    var card = el('div', 'card');
-    card.appendChild(el('h3', null, p.title));
-    card.appendChild(el('p', 'byline', p.authors.join(', ') + ' (' + p.year + ')'));
+    var card = document.createElement('details');
+    card.className = 'card';
+    card.appendChild(el('summary', null, p.title));
+    var body = el('div', 'details-body');
+    body.appendChild(el('p', 'byline', p.authors.join(', ') + ' (' + p.year + ')'));
     var abs = el('div', 'abstract');
     if (p.abstract_html) {
       // Content is our own published-author metadata pulled from figshare's API
@@ -680,7 +710,7 @@ log("Setup complete.")
     } else {
       abs.appendChild(el('p', null, 'Abstract not available from an automated source; see the SSRN link.'));
     }
-    card.appendChild(abs);
+    body.appendChild(abs);
     var links = el('div', 'links');
     var a1 = document.createElement('a');
     a1.href = p.ssrn_url; a1.target = '_blank'; a1.rel = 'noopener'; a1.textContent = 'SSRN abstract';
@@ -693,8 +723,9 @@ log("Setup complete.")
       a3.href = p.figshare_url; a3.target = '_blank'; a3.rel = 'noopener'; a3.textContent = 'figshare record';
       links.appendChild(a3);
     }
-    card.appendChild(links);
-    card.appendChild(el('div', 'note', 'Source: ' + p.abstract_source + '.'));
+    body.appendChild(links);
+    body.appendChild(el('div', 'note', 'Source: ' + p.abstract_source + '.'));
+    card.appendChild(body);
     paperCardsEl.appendChild(card);
   });
 
@@ -919,13 +950,15 @@ log("Setup complete.")
   });
 
   // ---------------------------------------------------------------
-  // Chained CTA. Must be synchronous inside the click handler and the
-  // Binder same-tab navigation must run last and unconditionally.
+  // Chained CTA. Must be synchronous inside the click handler. All three
+  // destinations open in new tabs; the current tab never navigates away.
+  // Binder opens first because it is the one that needs the most time to
+  // start.
   // ---------------------------------------------------------------
   document.getElementById('ctaBtn').addEventListener('click', function () {
+    try { window.open(BINDER_URL, '_blank', 'noopener'); } catch (e) {}
     try { window.open(SSRN_MAIN_URL, '_blank', 'noopener'); } catch (e) {}
     try { window.open(GITHUB_REPO_URL, '_blank', 'noopener'); } catch (e) {}
-    location.href = BINDER_URL;
   });
 })();
 </script>
