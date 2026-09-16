@@ -47,26 +47,55 @@
     line-height: 1.5;
     font-size: 0.95rem;
   }
+  p.intro {
+    color: var(--fg);
+    font-size: 1.02rem;
+    line-height: 1.55;
+    margin: 4px 0 10px 0;
+  }
+  p.disclosure {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin: 0 0 14px 0;
+  }
   .meta {
     font-size: 0.85rem;
     color: var(--muted);
     margin-bottom: 16px;
   }
-  button {
-    font-size: 1rem;
-    padding: 8px 20px;
+  .scenario-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 6px 0 10px 0;
+  }
+  @media (min-width: 640px) {
+    .scenario-grid { flex-direction: row; }
+  }
+  .scenario-btn {
+    display: block;
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 56px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    padding: 10px 16px;
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: 10px;
     background: var(--box-bg);
     color: var(--fg);
     cursor: pointer;
   }
-  button:disabled {
-    opacity: 0.6;
-    cursor: default;
+  .scenario-btn:active { opacity: 0.8; }
+  .scenario-btn:disabled { opacity: 0.5; cursor: default; }
+  #loadProgress {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 4px 0 12px 0;
+    min-height: 1.2em;
   }
   #log {
-    margin-top: 16px;
+    margin-top: 12px;
     background: var(--box-bg);
     border: 1px solid var(--border);
     border-radius: 4px;
@@ -78,6 +107,17 @@
     max-height: 260px;
     overflow-y: auto;
   }
+  #verdictBox {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--box-bg);
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+  #verdictBox.pass { border-color: var(--accent); }
+  #verdictBox.fail { border-color: var(--fail); }
   #receiptBox {
     margin-top: 16px;
   }
@@ -112,21 +152,27 @@
 <body>
 <div class="wrap">
   <h1>pit-release-gate quick check</h1>
-  <p>
-    This page runs entirely in your browser. It does not require a login or a server.
-    It loads a Python runtime (Pyodide, WebAssembly), installs the public release of
-    <code>pit-release-gate</code> version 0.1.0 from PyPI, runs the package's own included
-    tests, applies the package's release-control screen to a synthetic sample panel it
-    generates on the spot, and prints a verification receipt below. It takes about one to two
-    minutes, most of it spent downloading the Python runtime and the numpy/pandas/scipy packages.
+  <p class="intro">
+    Demo. Pick a scenario. The page builds synthetic data shaped like that scenario and
+    runs the real pit-release-gate release from PyPI on it, in your browser. Nothing of
+    yours is used or uploaded.
+  </p>
+  <p class="disclosure" id="disclosure">
     This page reports a visit and the receipt text to its author. It sends nothing else.
   </p>
   <div class="meta">
     Source package: <a href="https://pypi.org/project/pit-release-gate/0.1.0/" target="_blank" rel="noopener">pit-release-gate 0.1.0 on PyPI</a>
   </div>
-  <button id="runBtn">Run</button>
+
+  <div class="scenario-grid">
+    <button class="scenario-btn" data-scenario="llm_eval">LLM eval logs</button>
+    <button class="scenario-btn" data-scenario="ab_test">A/B test</button>
+    <button class="scenario-btn" data-scenario="retention">Retention metric</button>
+  </div>
+  <div id="loadProgress">Loading runtime, about 30-60 s on phones ...</div>
   <span id="status"></span>
   <pre id="log"></pre>
+  <div id="verdictBox" hidden></div>
   <div id="receiptBox" hidden>
     <h2>Verification receipt</h2>
     <pre id="receipt"></pre>
@@ -137,7 +183,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/pyodide/v0.29.5/full/pyodide.js"></script>
-<script type="text/python" id="pyscript">
+<script type="text/python" id="pyscript-setup">
 import js
 import sys, os, io, re, json, shutil, hashlib, tarfile, platform, contextlib
 import importlib.metadata, importlib.util
@@ -149,13 +195,14 @@ def log(msg):
 # ---------------------------------------------------------------------
 # 1) Install the PUBLIC RELEASE from PyPI via micropip (no GitHub checkout,
 #    no extras), then print the version that actually got installed.
+#    Runs once, when the page loads (not per scenario tap).
 # ---------------------------------------------------------------------
 import micropip
 log("Installing pit-release-gate 0.1.0 from PyPI via micropip ...")
 await micropip.install("pit-release-gate==0.1.0")
 
-version = importlib.metadata.version("pit-release-gate")
-log(f"Installed pit-release-gate version: {version}")
+PKG_VERSION = importlib.metadata.version("pit-release-gate")
+log(f"Installed pit-release-gate version: {PKG_VERSION}")
 
 # ---------------------------------------------------------------------
 # 2) Run the package's INCLUDED checks.
@@ -177,8 +224,8 @@ log(f"Installed pit-release-gate version: {version}")
 # ---------------------------------------------------------------------
 from pyodide.http import pyfetch
 
-log(f"Looking up PyPI release metadata for pit-release-gate=={version} ...")
-resp = await pyfetch(f"https://pypi.org/pypi/pit-release-gate/{version}/json")
+log(f"Looking up PyPI release metadata for pit-release-gate=={PKG_VERSION} ...")
+resp = await pyfetch(f"https://pypi.org/pypi/pit-release-gate/{PKG_VERSION}/json")
 pkg_meta = await resp.json()
 
 wheel_info = next(u for u in pkg_meta["urls"] if u["packagetype"] == "bdist_wheel")
@@ -272,10 +319,24 @@ log(f"Included checks: {TESTS_PASSED} passed, {TESTS_FAILED} failed, {TESTS_ERRO
     f"(method: {TESTS_METHOD})")
 
 # ---------------------------------------------------------------------
-# 3) Bundled sample: generate a synthetic point-in-time panel IN THIS PAGE
-#    (no external download) and apply the 0.1.0 screen to it. Same
-#    generative recipe as pit_release_gate.simulate.make_group, reproduced
-#    here to build a labelled panel instead of a single in-memory demo group.
+# 3) Scenario generators.
+#
+# Each generator builds a synthetic point-in-time panel: N_PERIODS
+# cross-sections of N_ASSETS units. For every unit, `arrival` in (0, 1]
+# says what fraction of the period's reporting window had to elapse
+# before that unit's true outcome was knowable (1.0 = only known at the
+# window's statutory deadline). `true_resid` is the within-period
+# cross-sectional OLS residual computed as if the FULL cross-section
+# were already known (the honest, complete-information answer). A
+# metric is "susceptible" when which units arrive early vs late is
+# itself correlated with the residual/outcome -- the picture you see
+# from whoever has reported so far is a biased preview of the final
+# answer, not a random subsample of it. Same ingredients (a linear
+# model plus noise, an arrival rank driven by a latent index), just a
+# different, scenario-specific rule for WHO arrives late.
+#
+# Every generator is seeded deterministically (see SCENARIOS below), so
+# a given scenario always reproduces the same numbers.
 # ---------------------------------------------------------------------
 import numpy as np
 import pandas as pd
@@ -284,143 +345,238 @@ from pit_release_gate import (
     AsOfDataStore, SusceptibilityGate, ReleaseController, CompletenessMonitor,
 )
 
-log("Building a synthetic point-in-time panel (24 periods x 60 assets) ...")
-
-SEED = 20260916
 N_ASSETS = 60
 N_PERIODS = 24
-N_TRAIN_PERIODS = 8   # "prior completed periods" used to fit rho_hat (honest estimation)
-
-C_A = 0.55   # moderate-to-strong leakage susceptibility -> something for the screen to flag
-C_X = 0.65
-
-rng = np.random.default_rng(SEED)
+N_TRAIN_PERIODS = 8   # prior completed periods used to fit rho_hat (honest estimation)
 
 
-def make_period(period_id, n=N_ASSETS, c_a=C_A, c_x=C_X, rng=rng):
-    size = rng.standard_normal(n)
-    x2 = rng.standard_normal(n)
-    u = rng.standard_normal(n)
-    b0, b1, b2 = 0.0, 0.6, -0.4
-    y = b0 + b1 * size + b2 * x2 + u
-    lat_index = -(c_a * (u - u.mean()) / (u.std() + 1e-9)
-                  + c_x * (size - size.mean()) / (size.std() + 1e-9)) \
-                + 0.5 * rng.standard_normal(n)
-    arrival = rankdata(lat_index) / n   # in (0, 1]; 1.0 == statutory deadline
-    X = np.column_stack([np.ones(n), size, x2])
-    b_full, *_ = np.linalg.lstsq(X, y, rcond=None)
-    true_resid = y - X @ b_full   # complete-cross-section truth (known because this is synthetic)
+def _z(v):
+    return (v - v.mean()) / (v.std() + 1e-9)
+
+
+def _ols_resid(X, y):
+    b, *_ = np.linalg.lstsq(X, y, rcond=None)
+    return y - X @ b
+
+
+def _frame(period_id, n, size, x2, y, arrival, resid):
     return pd.DataFrame({
         "period": period_id,
-        "asset_id": [f"A{i:03d}" for i in range(n)],
-        "size": size,
-        "x2": x2,
-        "y": y,
-        "arrival": arrival,
-        "true_resid": true_resid,
+        "unit_id": [f"U{i:03d}" for i in range(n)],
+        "size": size, "x2": x2, "y": y,
+        "arrival": arrival, "true_resid": resid,
     })
 
 
-panel = pd.concat([make_period(p) for p in range(1, N_PERIODS + 1)], ignore_index=True)
-panel.to_csv("/tmp/sample_panel.csv", index=False)
-log(f"sample_panel.csv written: {len(panel)} rows ({N_PERIODS} periods x {N_ASSETS} assets)")
+def make_period_llm_eval(period_id, n, c_a, c_x, rng):
+    """LLM eval logs.
+    Conversations (X: prompt-complexity `size`, model-confidence `x2`) are
+    logged immediately -- they exist the moment the call finishes. The
+    quality rating `y` needs a human (or a slower auto-grader) to look at
+    it, and that takes 1-14 days. Harder conversations -- the ones the
+    model actually did worse on (larger negative residual) -- take longer
+    to adjudicate (disputes, escalation, correction passes), so `arrival`
+    is driven mainly by the residual itself (weight c_a) with a smaller
+    assist from prompt complexity (c_x).
+    """
+    size = rng.standard_normal(n)          # prompt complexity
+    x2 = rng.standard_normal(n)            # model self-confidence
+    u = rng.standard_normal(n)
+    y = 0.0 + 0.6 * size - 0.4 * x2 + u    # realized quality rating
+    lat = -(c_a * _z(u) + c_x * _z(size)) + 0.5 * rng.standard_normal(n)
+    arrival = rankdata(lat) / n
+    X = np.column_stack([np.ones(n), size, x2])
+    resid = _ols_resid(X, y)
+    return _frame(period_id, n, size, x2, y, arrival, resid)
 
-# ---- reload from CSV (as a third party would) and apply the screen --------
-loaded = pd.read_csv("/tmp/sample_panel.csv")
+
+def make_period_ab_test(period_id, n, c_a, c_x, rng):
+    """A/B test.
+    `size` is a pre-experiment covariate (baseline engagement); `x2` is
+    reused as the ARM indicator (0=control, 1=treatment), assigned by a
+    fair coin flip so it carries no early-arrival information by itself.
+    `y` is the conversion value. Exposures (X) are logged the instant a
+    user is bucketed. Conversions (y) trickle in for up to 30 days. The
+    skew: only inside the TREATMENT arm do the biggest conversions arrive
+    last (e.g. the treatment nudges people toward a slower, higher-value
+    purchase path); the control arm's conversions arrive in roughly random
+    order. That makes an early readout understate the treatment arm
+    specifically, not just add noise to both.
+    """
+    size = rng.standard_normal(n)                       # baseline engagement
+    arm = (rng.standard_normal(n) > 0).astype(float)     # x2 slot: 0/1 arm
+    u = rng.standard_normal(n)
+    y = 0.0 + 0.3 * size + 0.5 * arm + u                 # conversion value; true effect = 0.5
+    lat = -(c_a * arm * _z(u)) + 0.5 * rng.standard_normal(n)
+    arrival = rankdata(lat) / n
+    X = np.column_stack([np.ones(n), size, arm])
+    resid = _ols_resid(X, y)
+    return _frame(period_id, n, size, arm, y, arrival, resid)
+
+
+def make_period_retention(period_id, n, c_a, c_x, rng):
+    """Retention metric.
+    `size` is a signup-channel quality score, `x2` is a day-1 engagement
+    score, both known immediately. `y` is the TRUE day-30 retention
+    propensity for the cohort member. Day-30 retention is only knowable
+    once day 30 actually arrives. Before that, a day-7 snapshot exists,
+    and it looks fine for almost everyone still active -- including users
+    who are actually going to churn between day 7 and day 30, whose true
+    (lower) outcome only surfaces at the end of the window. So lateness is
+    again driven by the residual: eventual under-performers (large
+    negative residual) reveal their real number last, which is exactly
+    what makes an early snapshot look better than the truth.
+    """
+    size = rng.standard_normal(n)      # signup channel quality
+    x2 = rng.standard_normal(n)        # day-1 engagement
+    u = rng.standard_normal(n)
+    y = 0.0 + 0.5 * size + 0.3 * x2 + u   # true day-30 retention propensity
+    lat = -(c_a * _z(u) + c_x * _z(x2)) + 0.5 * rng.standard_normal(n)
+    arrival = rankdata(lat) / n
+    X = np.column_stack([np.ones(n), size, x2])
+    resid = _ols_resid(X, y)
+    return _frame(period_id, n, size, x2, y, arrival, resid)
+
+
+SCENARIOS = {
+    "llm_eval": dict(label="LLM eval logs", maker=make_period_llm_eval,
+                      seed=20260916001, window_days=14, c_a=0.60, c_x=0.35,
+                      unit_noun="conversations"),
+    "ab_test": dict(label="A/B test", maker=make_period_ab_test,
+                     seed=20260916002, window_days=30, c_a=0.70, c_x=0.0,
+                     unit_noun="exposures"),
+    "retention": dict(label="Retention metric", maker=make_period_retention,
+                       seed=20260916003, window_days=30, c_a=0.55, c_x=0.35,
+                       unit_noun="cohort members"),
+}
 
 
 def df_to_store(g):
     X = np.column_stack([np.ones(len(g)), g["size"].to_numpy(), g["x2"].to_numpy()])
     return AsOfDataStore(X=X, y=g["y"].to_numpy(), arrival=g["arrival"].to_numpy(),
-                         size=g["size"].to_numpy(), truth_resid=g["true_resid"].to_numpy())
+                          size=g["size"].to_numpy(), truth_resid=g["true_resid"].to_numpy())
 
 
-periods_sorted = sorted(loaded["period"].unique())
-train_periods, live_periods = periods_sorted[:N_TRAIN_PERIODS], periods_sorted[N_TRAIN_PERIODS:]
+def run_full_scenario(key):
+    t_start = datetime.now(timezone.utc)
+    cfg = SCENARIOS[key]
+    label = cfg["label"]
+    rng = np.random.default_rng(cfg["seed"])
 
-# Honest-estimation contract: fit rho_hat on prior COMPLETED periods only,
-# then freeze it and gate fresh live periods with the frozen estimate.
-train_stores = [df_to_store(loaded[loaded.period == p]) for p in train_periods]
-gate = SusceptibilityGate(threshold=0.10)
-rho_trailing = gate.fit_trailing(train_stores)
-susceptible = gate.is_susceptible(rho_trailing)
-log(f"Fitted on {len(train_stores)} trailing completed periods: "
-    f"rho_hat={rho_trailing:+.3f}  susceptible={susceptible}")
+    log(f"[{label}] Building a synthetic point-in-time panel "
+        f"({N_PERIODS} periods x {N_ASSETS} {cfg['unit_noun']}) ...")
+    panel = pd.concat(
+        [cfg["maker"](p, N_ASSETS, cfg["c_a"], cfg["c_x"], rng) for p in range(1, N_PERIODS + 1)],
+        ignore_index=True,
+    )
+    csv_path = f"/tmp/sample_panel_{key}.csv"
+    panel.to_csv(csv_path, index=False)
+    loaded = pd.read_csv(csv_path)   # reload from CSV, as a third party would
 
-monitor = CompletenessMonitor()
-controller = ReleaseController(gate=gate, monitor=monitor)
-policies = ["naive", "threshold", "deadline", "gated"]
-records = []
-for p in live_periods:
-    store = df_to_store(loaded[loaded.period == p])
-    for policy in policies:
-        d = controller.run_until_release(store, policy=policy)
-        records.append({
-            "period": p, "policy": policy, "action": d.action,
-            "completeness": d.completeness,
-            "n_released": 0 if d.values is None else len(d.values),
-        })
+    periods_sorted = sorted(loaded["period"].unique())
+    train_periods, live_periods = periods_sorted[:N_TRAIN_PERIODS], periods_sorted[N_TRAIN_PERIODS:]
+    train_stores = [df_to_store(loaded[loaded.period == p]) for p in train_periods]
 
-results = pd.DataFrame(records)
-summary = results.groupby("policy")["completeness"].agg(["mean", "min", "max"]).round(3)
-summary["withhold_rate"] = results.groupby("policy")["action"].apply(
-    lambda s: (s == "WITHHOLD").mean()).round(3)
-log(f"Screen applied to {len(live_periods)} live evaluation periods "
-    f"({len(loaded)} total panel rows, {N_ASSETS} assets/period).")
-for line in summary.to_string().splitlines():
-    log("  " + line)
+    # Honest-estimation contract: fit rho_hat on prior COMPLETED periods only,
+    # then freeze it and gate fresh live periods with the frozen estimate.
+    gate = SusceptibilityGate(threshold=0.10)
+    rho_trailing = gate.fit_trailing(train_stores)
+    susceptible = gate.is_susceptible(rho_trailing)
+    log(f"[{label}] Fitted on {len(train_stores)} trailing completed periods: "
+        f"rho_hat={rho_trailing:+.3f}  susceptible={susceptible}")
 
-SCREEN_FLAGGED = bool(susceptible and
-                      summary.loc["gated", "mean"] > summary.loc["naive", "mean"] + 0.05)
-log(f"FLAG: {'YES' if SCREEN_FLAGGED else 'no'} -- susceptibility gate rho_hat={rho_trailing:+.3f} "
-    f"(threshold=0.10)")
+    monitor = CompletenessMonitor()
+    controller = ReleaseController(gate=gate, monitor=monitor)
+    policies = ["naive", "threshold", "deadline", "gated"]
+    records = []
+    for p in live_periods:
+        store = df_to_store(loaded[loaded.period == p])
+        for policy in policies:
+            d = controller.run_until_release(store, policy=policy)
+            records.append({
+                "period": p, "policy": policy, "action": d.action,
+                "completeness": d.completeness,
+                "n_released": 0 if d.values is None else len(d.values),
+            })
+    results = pd.DataFrame(records)
+    summary = results.groupby("policy")["completeness"].agg(["mean", "min", "max"]).round(3)
+    summary["withhold_rate"] = results.groupby("policy")["action"].apply(
+        lambda s: (s == "WITHHOLD").mean()).round(3)
+    log(f"[{label}] Screen applied to {len(live_periods)} live evaluation periods "
+        f"({len(loaded)} total panel rows, {N_ASSETS} {cfg['unit_noun']}/period).")
+    for line in summary.to_string().splitlines():
+        log("  " + line)
 
-SCREEN_ROWS = len(loaded)
-SCREEN_PERIODS_EVAL = len(live_periods)
+    window_days = cfg["window_days"]
+    naive_pct = float(summary.loc["naive", "mean"])
+    gated_pct = float(summary.loc["gated", "mean"])
+    naive_day = naive_pct * window_days
+    gated_day = gated_pct * window_days
+    delta_days = gated_day - naive_day
 
-# ---------------------------------------------------------------------
-# 4) RECEIPT -- everything a reviewer needs to confirm what actually ran.
-# ---------------------------------------------------------------------
-test_status = "PASS" if TESTS_RETURNCODE == 0 else "FAIL"
+    verdict_text = (
+        f"{label}: trailing susceptibility rho_hat = {rho_trailing:+.2f} (threshold 0.10) -- "
+        f"this metric is {'susceptible' if susceptible else 'not susceptible'}. "
+        f"A result computed at day {naive_day:.1f} of {window_days} "
+        f"({100*naive_pct:.0f}% complete) would have been acted on by a naive release; "
+        f"the gate held the decision until day {gated_day:.1f} of {window_days} "
+        f"({100*gated_pct:.0f}% complete), {delta_days:.1f} days later."
+    )
+    log(f"[{label}] {verdict_text}")
 
-receipt_lines = [
-    "pit-release-gate VERIFICATION RECEIPT",
-    "Package                 : pit-release-gate",
-    f"Installed version       : {version}  (source: micropip.install from PyPI, not GitHub)",
-    f"Wheel  sha256 (PyPI)    : {WHEEL_SHA256}",
-    f"Sdist  sha256 (PyPI)    : {SDIST_SHA256}  (downloaded + checksum-verified to source the included tests)",
-    "-",
-    "Included checks         : tests/test_reproduces_paper.py, sourced from the matching PyPI sdist",
-    "                          (not shipped in the wheel), run against the installed package",
-    f"Test method             : {TESTS_METHOD}",
-    f"Test result             : {test_status}  ({TESTS_PASSED} passed, {TESTS_FAILED} failed, {TESTS_ERRORS} errors)",
-    "-",
-    f"Screen applied to       : sample_panel.csv, generated in this page "
-    f"({N_PERIODS} periods x {N_ASSETS} assets = {SCREEN_ROWS} rows)",
-    f"Trailing rho_hat        : {rho_trailing:+.3f}  (susceptible={susceptible}, threshold=0.10)",
-    f"Live evaluation periods : {SCREEN_PERIODS_EVAL}",
-    f"Screen flagged issue    : {'YES' if SCREEN_FLAGGED else 'no'}  "
-    f"(gated policy withheld to {100*summary.loc['gated','mean']:.0f}% completeness "
-    f"vs {100*summary.loc['naive','mean']:.0f}% for naive)",
-    "-",
-    f"Python                  : {platform.python_version()} ({sys.platform}, Pyodide/WebAssembly in your browser)",
-    f"Timestamp (UTC)         : {datetime.now(timezone.utc).isoformat(timespec='seconds')}",
-    "",
-    "Generated by running the public release of pit-release-gate from PyPI.",
-]
-width = max(len(l) for l in receipt_lines) + 2
-out = []
-out.append("+" + "-" * (width + 2) + "+")
-for l in receipt_lines:
-    out.append("| " + l.ljust(width) + " |")
-out.append("+" + "-" * (width + 2) + "+")
-receipt_text = "\n".join(out)
-log("Receipt ready.")
-js.finishRun(receipt_text, test_status)
-receipt_text
+    test_status = "PASS" if TESTS_RETURNCODE == 0 else "FAIL"
+    elapsed_s = (datetime.now(timezone.utc) - t_start).total_seconds()
+    receipt_lines = [
+        "pit-release-gate VERIFICATION RECEIPT",
+        "Package                 : pit-release-gate",
+        f"Installed version       : {PKG_VERSION}  (source: micropip.install from PyPI, not GitHub)",
+        f"Wheel  sha256 (PyPI)    : {WHEEL_SHA256}",
+        f"Sdist  sha256 (PyPI)    : {SDIST_SHA256}  (downloaded + checksum-verified to source the included tests)",
+        "-",
+        f"Scenario                : {label} (synthetic)",
+        "-",
+        "Included checks         : tests/test_reproduces_paper.py, sourced from the matching PyPI sdist",
+        "                          (not shipped in the wheel), run against the installed package",
+        f"Test method             : {TESTS_METHOD}",
+        f"Test result             : {test_status}  ({TESTS_PASSED} passed, {TESTS_FAILED} failed, {TESTS_ERRORS} errors)",
+        "-",
+        f"Screen applied to       : sample_panel_{key}.csv, generated in this page "
+        f"({N_PERIODS} periods x {N_ASSETS} {cfg['unit_noun']} = {len(loaded)} rows)",
+        f"Trailing rho_hat        : {rho_trailing:+.3f}  (susceptible={susceptible}, threshold=0.10)",
+        f"Live evaluation periods : {len(live_periods)}",
+        f"Naive release           : day {naive_day:.1f} / {window_days}  ({100*naive_pct:.0f}% complete)",
+        f"Gated release           : day {gated_day:.1f} / {window_days}  ({100*gated_pct:.0f}% complete)",
+        "-",
+        f"Python                  : {platform.python_version()} ({sys.platform}, Pyodide/WebAssembly in your browser)",
+        f"Scenario run time       : {elapsed_s:.1f}s",
+        f"Timestamp (UTC)         : {datetime.now(timezone.utc).isoformat(timespec='seconds')}",
+        "",
+        "Generated by running the public release of pit-release-gate from PyPI.",
+    ]
+    width = max(len(l) for l in receipt_lines) + 2
+    out = ["+" + "-" * (width + 2) + "+"]
+    for l in receipt_lines:
+        out.append("| " + l.ljust(width) + " |")
+    out.append("+" + "-" * (width + 2) + "+")
+    receipt_text = "\n".join(out)
+    log(f"[{label}] Receipt ready.")
+    js.finishRun(verdict_text, receipt_text, test_status, label)
+
+
+log("Setup complete. Pick a scenario.")
 </script>
 <script>
-  let started = false;
+  const params = new URLSearchParams(location.search);
+  const REPORTING_ON = params.get('report') !== '0';
+  const REPORT_URL = 'https://ntfy.sh/mwa-quickcheck-d0dab488d9b80753179333c4';
+
+  function report(title, tags, text) {
+    if (!REPORTING_ON) return;
+    try {
+      fetch(REPORT_URL, { method: 'POST', body: text, keepalive: true,
+        headers: { 'Title': title, 'Tags': tags } }).catch(() => {});
+    } catch (e) {}
+  }
 
   function appendLog(msg) {
     const el = document.getElementById('log');
@@ -431,54 +587,85 @@ receipt_text
   }
   window.appendLog = appendLog;
 
-  const REPORT_URL = 'https://ntfy.sh/mwa-quickcheck-d0dab488d9b80753179333c4';
-  function report(title, tags, text) {
-    try {
-      fetch(REPORT_URL, { method: 'POST', body: text, keepalive: true,
-        headers: { 'Title': title, 'Tags': tags } }).catch(() => {});
-    } catch (e) {}
-  }
-  window.addEventListener('DOMContentLoaded', () => {
-    report('visit', 'eyes', 'VISIT ' + new Date().toISOString() + ' ' + navigator.userAgent + ' ' + location.href);
-  });
+  let pyodide = null;
+  let pyodideReady = false;
+  let pendingScenario = null;
+  let running = false;
 
-  function finishRun(receiptText, status) {
+  const SCENARIO_LABELS = {
+    llm_eval: 'LLM eval logs',
+    ab_test: 'A/B test',
+    retention: 'Retention metric',
+  };
+
+  function setButtonsDisabled(disabled) {
+    document.querySelectorAll('.scenario-btn').forEach((b) => { b.disabled = disabled; });
+  }
+
+  function finishRun(verdictText, receiptText, status, scenarioLabel) {
+    const vBox = document.getElementById('verdictBox');
+    vBox.hidden = false;
+    vBox.textContent = verdictText;
+    vBox.className = status === 'PASS' ? 'pass' : 'fail';
+
     const box = document.getElementById('receiptBox');
     const pre = document.getElementById('receipt');
     box.hidden = false;
     pre.textContent = receiptText;
-    report('receipt', 'white_check_mark', receiptText);
+    report('receipt: ' + scenarioLabel, 'white_check_mark', receiptText);
+
     const statusEl = document.getElementById('status');
     statusEl.textContent = status;
     statusEl.className = status === 'PASS' ? 'pass' : 'fail';
   }
   window.finishRun = finishRun;
 
-  async function run() {
-    if (started) return;
-    started = true;
-    const btn = document.getElementById('runBtn');
-    btn.disabled = true;
-    btn.textContent = 'Running...';
+  async function preload() {
+    const progressEl = document.getElementById('loadProgress');
+    try {
+      progressEl.textContent = 'Loading runtime, about 30-60 s on phones ...';
+      pyodide = await loadPyodide();
+      progressEl.textContent = 'Runtime loaded. Installing pit-release-gate and running its tests ...';
+      await pyodide.loadPackage(['numpy', 'pandas', 'scipy', 'pytest', 'micropip']);
+      const setupCode = document.getElementById('pyscript-setup').textContent;
+      await pyodide.runPythonAsync(setupCode);
+      pyodideReady = true;
+      progressEl.textContent = 'Ready. Pick a scenario above.';
+      if (pendingScenario) {
+        const s = pendingScenario;
+        pendingScenario = null;
+        runScenario(s);
+      }
+    } catch (err) {
+      progressEl.textContent = 'ERROR loading runtime: ' + (err && err.message ? err.message : String(err));
+      report('run_fail', 'x', 'PRELOAD_FAIL ' + new Date().toISOString() + ' ' + (err && err.message ? err.message : String(err)));
+      console.error(err);
+    }
+  }
+
+  async function runScenario(key) {
+    if (running) return;
+    if (!pyodideReady) {
+      pendingScenario = key;
+      document.getElementById('loadProgress').textContent =
+        'Still loading the runtime -- will run "' + SCENARIO_LABELS[key] + '" as soon as it is ready ...';
+      return;
+    }
+    running = true;
+    setButtonsDisabled(true);
     document.getElementById('status').textContent = '';
     document.getElementById('status').className = '';
+    document.getElementById('verdictBox').hidden = true;
     document.getElementById('receiptBox').hidden = true;
-    document.getElementById('receipt').textContent = '';
     document.getElementById('log').textContent = '';
+    document.getElementById('loadProgress').textContent = 'Running "' + SCENARIO_LABELS[key] + '" ...';
     const t0 = performance.now();
-    report('run_start', 'hourglass', 'RUN_START ' + new Date().toISOString() + ' ' + navigator.userAgent);
+    report('run_start', 'hourglass', 'RUN_START ' + key + ' ' + new Date().toISOString() + ' ' + navigator.userAgent);
     try {
-      appendLog('Loading Pyodide runtime (WebAssembly) ...');
-      const pyodide = await loadPyodide();
-      appendLog('Pyodide ready. Loading numpy, pandas, scipy, pytest, micropip ...');
-      await pyodide.loadPackage(['numpy', 'pandas', 'scipy', 'pytest', 'micropip']);
-      appendLog('Packages loaded. Running verification script ...');
-      const code = document.getElementById('pyscript').textContent;
-      await pyodide.runPythonAsync(code);
-      appendLog('Done.');
+      await pyodide.runPythonAsync('run_full_scenario(' + JSON.stringify(key) + ')');
     } catch (err) {
       appendLog('ERROR: ' + (err && err.message ? err.message : String(err)));
-      report('run_fail', 'x', 'RUN_FAIL ' + new Date().toISOString() + ' ' + (err && err.message ? err.message : String(err)));
+      report('run_fail', 'x', 'RUN_FAIL ' + key + ' ' + new Date().toISOString() + ' ' + (err && err.message ? err.message : String(err)));
       const statusEl = document.getElementById('status');
       statusEl.textContent = 'ERROR';
       statusEl.className = 'fail';
@@ -486,15 +673,28 @@ receipt_text
     } finally {
       const t1 = performance.now();
       appendLog('Total time: ' + ((t1 - t0) / 1000).toFixed(1) + 's');
-      btn.textContent = 'Run again';
-      btn.disabled = false;
-      started = false;
+      document.getElementById('loadProgress').textContent = 'Ready. Pick a scenario above.';
+      setButtonsDisabled(false);
+      running = false;
     }
   }
+  window.runScenario = runScenario;
 
-  document.getElementById('runBtn').addEventListener('click', run);
+  document.querySelectorAll('.scenario-btn').forEach((btn) => {
+    btn.addEventListener('click', () => runScenario(btn.dataset.scenario));
+  });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    if (!REPORTING_ON) {
+      const d = document.getElementById('disclosure');
+      if (d) d.hidden = true;
+      return;
+    }
+    report('visit', 'eyes', 'VISIT ' + new Date().toISOString() + ' ' + navigator.userAgent + ' ' + location.href);
+  });
+
   window.addEventListener('load', () => {
-    run().catch((e) => console.error(e));
+    preload().catch((e) => console.error(e));
   });
 </script>
 </body>
