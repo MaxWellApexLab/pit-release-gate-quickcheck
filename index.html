@@ -20,7 +20,7 @@
 <meta property="og:description" content="Runs the public pit-release-gate release in your browser and prints a verification receipt. Nothing is uploaded.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://maxwellapexlab.github.io/pit-release-gate-quickcheck/">
-<meta property="og:image" content="https://maxwellapexlab.github.io/pit-release-gate-quickcheck/og.png">
+<meta property="og:image" content="https://mwa-quickcheck-relay.maxwellapexlab.workers.dev/og.png">
 <meta name="twitter:card" content="summary_large_image">
 
 <link rel="preload" as="fetch" href="pyodide/pyodide.asm.wasm" type="application/wasm" crossorigin>
@@ -167,7 +167,7 @@
   <!-- ============================================================= -->
   <div class="action-grid" id="actionRow">
     <button class="action-btn" id="runLiveBtn">Run it live in your browser (about 1 minute)</button>
-    <a class="action-btn" href="https://mybinder.org/v2/gist/MaxWellApexLab/fb6258ac4f36db0da2ee31da6221ba5c/HEAD?urlpath=voila%2Frender%2Fquickstart_pit_release_gate.ipynb" target="_blank" rel="noopener">Live notebook (Binder, 20 to 60 s)</a>
+    <a class="action-btn" id="binderLink" href="https://mybinder.org/v2/gist/MaxWellApexLab/fb6258ac4f36db0da2ee31da6221ba5c/HEAD?urlpath=voila%2Frender%2Fquickstart_pit_release_gate.ipynb" target="_blank" rel="noopener">Live notebook (Binder, 20 to 60 s)</a>
     <a class="action-btn" href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7016199" target="_blank" rel="noopener">Paper on SSRN</a>
     <a class="action-btn" href="https://github.com/MaxWellApexLab/pit-release-gate" target="_blank" rel="noopener">Code on GitHub</a>
   </div>
@@ -619,6 +619,13 @@ log("Setup complete.")
       fetch(REPORT_URL, { method: 'POST', body: text, keepalive: true,
         headers: { 'Title': title, 'Tags': tags } }).catch(function () {});
     } catch (e) {}
+    if (WORKER_BASE) {
+      try {
+        fetch(WORKER_BASE + '/receipt', { method: 'POST', keepalive: true,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: title, body: text }) }).catch(function () {});
+      } catch (e) {}
+    }
   }
   window.__reportFromPy = report;
 
@@ -634,6 +641,24 @@ log("Setup complete.")
       ' ref=' + (document.referrer || '(none)') +
       ' ua=' + navigator.userAgent;
     report('visit', 'eyes', visitBody);
+  }
+
+  // ---------------------------------------------------------------
+  // Binder link: if the Worker has a live pre-warmed Binder server ready
+  // (see /binder), swap the static launch link for the ready one so a
+  // visitor lands immediately instead of waiting through a cold build.
+  // No window.open / no auto-navigation: this only rewrites the link.
+  // ---------------------------------------------------------------
+  if (WORKER_BASE) {
+    fetch(WORKER_BASE + '/binder').then(function (r) { return r.json(); }).then(function (data) {
+      if (data && data.url) {
+        var link = document.getElementById('binderLink');
+        if (link) {
+          link.href = data.url;
+          link.textContent = 'Live notebook (ready now)';
+        }
+      }
+    }).catch(function () {});
   }
 
   // ---------------------------------------------------------------
