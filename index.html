@@ -154,6 +154,607 @@
 </style>
 </head>
 <body>
+<!-- OWN-DATA START -->
+<style id="owndata-css">
+  .od-block {
+    --od-bg: #ffffff; --od-fg: #111111; --od-muted: #555555;
+    --od-border: #cccccc; --od-box: #f6f6f6; --od-accent: #0a5f38;
+    --od-accent-fg: #ffffff; --od-fail: #a30000; --od-link: #0a4f9e;
+    box-sizing: border-box;
+    max-width: 640px; margin: 0 auto 28px auto; padding: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px; line-height: 1.5; color: var(--od-fg); background: var(--od-bg);
+    border: 1px solid var(--od-border); border-radius: 10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .od-block {
+      --od-bg: #111111; --od-fg: #eeeeee; --od-muted: #aaaaaa;
+      --od-border: #444444; --od-box: #1b1b1b; --od-accent: #6fd6a8;
+      --od-accent-fg: #0a2016; --od-fail: #ff8080; --od-link: #7fb4ff;
+    }
+  }
+  .od-block * { box-sizing: border-box; }
+  .od-h { margin: 0 0 4px 0; font-size: 1.1rem; }
+  .od-sub { margin: 0 0 12px 0; color: var(--od-muted); font-size: 0.88rem; }
+  .od-drop {
+    position: relative; border: 2px dashed var(--od-border); border-radius: 10px;
+    padding: 22px 14px; text-align: center; min-height: 44px; background: var(--od-box);
+  }
+  .od-drop.od-drag { border-color: var(--od-accent); }
+  .od-drop-text { pointer-events: none; color: var(--od-fg); }
+  .od-drop-text small { display: block; margin-top: 4px; color: var(--od-muted); }
+  .od-file-input {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    opacity: 0; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .od-row { display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .od-sample-link { color: var(--od-link); font-size: 0.88rem; text-decoration: underline;
+    min-height: 44px; display: inline-flex; align-items: center; }
+  .od-privacy { font-size: 0.78rem; color: var(--od-muted); margin-top: 6px; }
+  .od-progress { margin-top: 12px; font-size: 0.9rem; color: var(--od-muted); display: none; }
+  .od-progress[data-active="1"] { display: block; }
+  .od-error { margin-top: 12px; font-size: 0.9rem; color: var(--od-fail); display: none; }
+  .od-error[data-active="1"] { display: block; }
+  .od-mapper { margin-top: 14px; display: none; }
+  .od-mapper[data-active="1"] { display: block; }
+  .od-mapper-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin: 10px 0; }
+  .od-mapper-grid label { font-size: 0.82rem; color: var(--od-muted); display: block; margin-bottom: 2px; }
+  .od-mapper-grid select {
+    width: 100%; min-height: 44px; padding: 6px 8px; font-size: 0.95rem;
+    border: 1px solid var(--od-border); border-radius: 6px; background: var(--od-bg); color: var(--od-fg);
+  }
+  .od-btn {
+    display: inline-block; min-height: 44px; padding: 10px 18px; font-size: 0.95rem;
+    font-weight: 600; border: none; border-radius: 8px; background: var(--od-accent);
+    color: var(--od-accent-fg); cursor: pointer;
+  }
+  .od-card {
+    margin-top: 14px; border: 1px solid var(--od-border); border-radius: 10px;
+    padding: 14px 16px; background: var(--od-box); display: none;
+  }
+  .od-card[data-active="1"] { display: block; }
+  .od-card h4 { margin: 0 0 8px 0; font-size: 1rem; }
+  .od-kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; font-size: 0.88rem; }
+  .od-kv .k { color: var(--od-muted); }
+  .od-sentence { margin-top: 10px; font-size: 0.95rem; }
+  .od-details summary { cursor: pointer; font-size: 0.85rem; color: var(--od-link); margin-top: 10px; min-height: 44px; display: list-item; }
+  .od-receipt { white-space: pre-wrap; word-break: break-word; font-family: ui-monospace, Consolas, monospace;
+    font-size: 0.72rem; background: var(--od-bg); border: 1px solid var(--od-border); border-radius: 6px;
+    padding: 8px; margin-top: 8px; }
+</style>
+
+<div class="od-block" id="odBlock">
+  <h2 class="od-h">Try it on your own data</h2>
+  <p class="od-sub">Runs in your browser. Nothing is uploaded.</p>
+
+  <div class="od-drop" id="odDrop">
+    <input type="file" accept=".csv" id="odFile" class="od-file-input" aria-label="Choose a CSV file">
+    <div class="od-drop-text">
+      <strong>Drop a CSV here</strong>
+      <small>or tap to choose a file</small>
+    </div>
+  </div>
+
+  <div class="od-row">
+    <a href="#" id="odSampleLink" class="od-sample-link" download="sample_quickcheck.csv">Download a sample CSV</a>
+  </div>
+  <p class="od-privacy">Reporting for this run sends only summary numbers (never your data or column values),
+    timestamp and device info, labeled "receipt: own data".</p>
+
+  <div class="od-progress" id="odProgress"></div>
+  <div class="od-error" id="odError"></div>
+
+  <div class="od-mapper" id="odMapper">
+    <p class="od-sub">We could not tell which column is which. Match them below.</p>
+    <div class="od-mapper-grid" id="odMapperGrid"></div>
+    <button type="button" class="od-btn" id="odMapperRun">Run the check</button>
+  </div>
+
+  <div class="od-card" id="odResult">
+    <h4>Your data, checked</h4>
+    <div class="od-kv" id="odResultKv"></div>
+    <p class="od-sentence" id="odSentence"></p>
+    <details class="od-details">
+      <summary>Show details (receipt: own data)</summary>
+      <div class="od-receipt" id="odReceipt"></div>
+    </details>
+  </div>
+</div>
+
+<script type="text/python" id="owndata-py">
+import io, json
+import numpy as np
+import pandas as pd
+from scipy.stats import rankdata
+import micropip
+
+wheel_source = "PyPI (public release)"
+try:
+    await micropip.install(OWNDATA_WHEEL_URL)
+    wheel_source = "self-hosted copy in pyodide/"
+except Exception:
+    await micropip.install("pit-release-gate==0.1.0")
+
+import importlib.metadata
+from pit_release_gate import (
+    AsOfDataStore, SusceptibilityGate, ReleaseController, CompletenessMonitor,
+)
+
+PKG_VERSION = importlib.metadata.version("pit-release-gate")
+colmap = json.loads(OWNDATA_COLMAP)
+
+df_raw = pd.read_csv(io.StringIO(OWNDATA_CSV_TEXT))
+missing_src = [v for v in colmap.values() if v not in df_raw.columns]
+if missing_src:
+    raise ValueError("column not found in CSV: " + ", ".join(missing_src))
+
+inv = {v: k for k, v in colmap.items()}
+df = df_raw.rename(columns=inv)
+for k in ("period", "entity", "value", "arrival"):
+    if k not in df.columns:
+        raise ValueError("missing column mapping for: " + k)
+df = df[["period", "entity", "value", "arrival"]].copy()
+
+if len(df) == 0:
+    raise ValueError("the CSV has no data rows")
+
+df["value"] = pd.to_numeric(df["value"], errors="coerce")
+n_dropped = int(df["value"].isna().sum())
+df = df.dropna(subset=["value"])
+if len(df) == 0:
+    raise ValueError("the value column has no numeric values")
+
+
+def _sort_key(s):
+    try:
+        return pd.to_numeric(s, errors="raise")
+    except Exception:
+        pass
+    try:
+        return pd.to_datetime(s, errors="raise")
+    except Exception:
+        return s.astype(str)
+
+
+df["_period_key"] = _sort_key(df["period"])
+df["_arrival_key"] = _sort_key(df["arrival"])
+
+periods_sorted = sorted(df["_period_key"].unique().tolist())
+if len(periods_sorted) < 2:
+    raise ValueError("need at least 2 distinct periods to compare a naive release against the gate")
+
+
+def _norm_arrival(g):
+    n = len(g)
+    if n == 1:
+        return pd.Series([1.0], index=g.index)
+    r = rankdata(g["_arrival_key"].to_numpy(), method="average")
+    return pd.Series(r / n, index=g.index)
+
+
+df["_t_arrival"] = df.groupby("_period_key", group_keys=False)[["_arrival_key"]].apply(_norm_arrival)
+
+
+def _build_store(g):
+    n = len(g)
+    y = g["value"].to_numpy(dtype=float)
+    resid = y - y.mean()
+    X = np.ones((n, 1))
+    size = np.zeros(n)
+    arrival = g["_t_arrival"].to_numpy(dtype=float)
+    return AsOfDataStore(X=X, y=y, arrival=arrival, size=size, truth_resid=resid)
+
+
+n_train = max(1, len(periods_sorted) // 2)
+train_periods = periods_sorted[:n_train]
+live_periods = periods_sorted[n_train:]
+
+train_stores = []
+for p in train_periods:
+    g = df[df["_period_key"] == p]
+    if len(g) >= 2:
+        train_stores.append(_build_store(g))
+
+if not train_stores:
+    raise ValueError("not enough rows per period to fit the susceptibility gate (need at least 2 entities per training period)")
+
+gate = SusceptibilityGate(threshold=0.10)
+rho_trailing = gate.fit_trailing(train_stores)
+susceptible = gate.is_susceptible(rho_trailing)
+
+monitor = CompletenessMonitor()
+controller = ReleaseController(gate=gate, monitor=monitor)
+
+records = []
+insufficient_entities = False
+n_live_scored = 0
+for p in live_periods:
+    g = df[df["_period_key"] == p]
+    if len(g) < 2:
+        continue
+    n_live_scored += 1
+    if len(g) < 6:
+        insufficient_entities = True
+    store = _build_store(g)
+    for policy in ("naive", "gated"):
+        d = controller.run_until_release(store, policy=policy)
+        records.append({"policy": policy, "action": d.action, "completeness": d.completeness})
+
+if not records:
+    raise ValueError("no live period had at least 2 entities to gate")
+
+res = pd.DataFrame(records)
+summary = res.groupby("policy")["completeness"].mean()
+naive_c = float(summary.get("naive", float("nan")))
+gated_c = float(summary.get("gated", float("nan")))
+delta = gated_c - naive_c
+
+naive_released = bool((res[res["policy"] == "naive"]["action"] != "WITHHOLD").any())
+gated_released = bool((res[res["policy"] == "gated"]["action"] != "WITHHOLD").any())
+
+sentence = "On your data the gate would have waited {:.2f} periods longer than a naive release.".format(delta)
+if insufficient_entities:
+    sentence += (" Some periods had fewer than 6 entities (the library's minimum cohort size), "
+                 "so release was delayed to that period's own deadline regardless of policy.")
+
+result = {
+    "rows": int(len(df)),
+    "periods": int(len(periods_sorted)),
+    "train_periods": int(len(train_periods)),
+    "live_periods": int(n_live_scored),
+    "entities": int(df["entity"].astype(str).nunique()),
+    "rho_trailing": float(rho_trailing),
+    "susceptible": bool(susceptible),
+    "naive_completeness": naive_c,
+    "gated_completeness": gated_c,
+    "delta_periods": float(delta),
+    "naive_released": naive_released,
+    "gated_released": gated_released,
+    "dropped_non_numeric_rows": n_dropped,
+    "sentence": sentence,
+    "pkg_version": PKG_VERSION,
+    "wheel_source": wheel_source,
+}
+json.dumps(result)
+</script>
+
+<script id="owndata">
+(function () {
+  'use strict';
+
+  var WORKER_BASE = window.WORKER_BASE || 'https://mwa-quickcheck-relay.maxwellapexlab.workers.dev';
+  var REPORT_URL = 'https://ntfy.sh/mwa-quickcheck-d0dab488d9b80753179333c4';
+
+  var CANDIDATES = {
+    period: ['period', 'date', 'month'],
+    entity: ['entity', 'id', 'asset', 'user'],
+    value: ['value', 'metric', 'score', 'outcome'],
+    arrival: ['arrival', 'as_of', 'asof', 'observed_at', 'received_at']
+  };
+  var FIELD_ORDER = ['period', 'entity', 'value', 'arrival'];
+
+  var el = {
+    drop: document.getElementById('odDrop'),
+    file: document.getElementById('odFile'),
+    sample: document.getElementById('odSampleLink'),
+    progress: document.getElementById('odProgress'),
+    error: document.getElementById('odError'),
+    mapper: document.getElementById('odMapper'),
+    mapperGrid: document.getElementById('odMapperGrid'),
+    mapperRun: document.getElementById('odMapperRun'),
+    result: document.getElementById('odResult'),
+    resultKv: document.getElementById('odResultKv'),
+    sentence: document.getElementById('odSentence'),
+    receipt: document.getElementById('odReceipt')
+  };
+
+  var state = { csvText: null, headers: null, mapping: null };
+  var pyodidePromise = null;
+
+  // ---------------------------------------------------------------
+  // Sample CSV (2 periods x 5 entities), built as a data: URL
+  // ---------------------------------------------------------------
+  function buildSampleCsv() {
+    var values = { '1': [10.2, 9.8, 11.4, 8.7, 10.9], '2': [10.5, 9.6, 11.1, 8.9, 10.7] };
+    var dates = {
+      '1': ['2026-01-01', '2026-01-02', '2026-01-03', '2026-01-04', '2026-01-05'],
+      '2': ['2026-02-01', '2026-02-02', '2026-02-03', '2026-02-04', '2026-02-05']
+    };
+    var lines = ['period,entity,value,arrival'];
+    ['1', '2'].forEach(function (p) {
+      for (var i = 0; i < 5; i++) {
+        lines.push([p, 'E' + (i + 1), values[p][i], dates[p][i]].join(','));
+      }
+    });
+    return lines.join('\n') + '\n';
+  }
+  if (el.sample) {
+    el.sample.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(buildSampleCsv()));
+  }
+
+  // ---------------------------------------------------------------
+  // UI helpers
+  // ---------------------------------------------------------------
+  function showProgress(msg) { el.progress.textContent = msg; el.progress.setAttribute('data-active', '1'); }
+  function hideProgress() { el.progress.setAttribute('data-active', '0'); el.progress.textContent = ''; }
+  function showError(msg) {
+    hideProgress();
+    el.error.textContent = msg;
+    el.error.setAttribute('data-active', '1');
+  }
+  function hideError() { el.error.setAttribute('data-active', '0'); el.error.textContent = ''; }
+  function hideMapper() { el.mapper.setAttribute('data-active', '0'); el.mapperGrid.innerHTML = ''; }
+  function hideResult() { el.result.setAttribute('data-active', '0'); }
+  function resetUI() { hideError(); hideMapper(); hideResult(); hideProgress(); }
+
+  // ---------------------------------------------------------------
+  // Minimal CSV parsing (RFC4180-ish) for header detection / validation
+  // ---------------------------------------------------------------
+  function parseCSV(text) {
+    var rows = [], row = [], field = '', inQuotes = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text[i];
+      if (inQuotes) {
+        if (c === '"') {
+          if (text[i + 1] === '"') { field += '"'; i++; } else { inQuotes = false; }
+        } else { field += c; }
+      } else if (c === '"') { inQuotes = true; }
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\r') { /* skip */ }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+      else { field += c; }
+    }
+    if (field.length > 0 || row.length > 0) { row.push(field); rows.push(row); }
+    return rows.filter(function (r) { return !(r.length === 1 && r[0].trim() === ''); });
+  }
+
+  function normHeader(h) {
+    return String(h).trim().toLowerCase().replace(/[\s\-]+/g, '_');
+  }
+
+  function autoDetect(headers) {
+    var used = {}, map = {}, norm = headers.map(normHeader);
+    FIELD_ORDER.forEach(function (target) {
+      var cands = CANDIDATES[target];
+      for (var ci = 0; ci < cands.length; ci++) {
+        for (var hi = 0; hi < norm.length; hi++) {
+          if (used[hi]) continue;
+          if (norm[hi] === cands[ci]) { map[target] = headers[hi]; used[hi] = true; return; }
+        }
+      }
+    });
+    return map;
+  }
+
+  // ---------------------------------------------------------------
+  // Manual mapper UI
+  // ---------------------------------------------------------------
+  function showMapper(headers, guess) {
+    el.mapperGrid.innerHTML = '';
+    var selects = {};
+    FIELD_ORDER.forEach(function (target) {
+      var wrap = document.createElement('div');
+      var label = document.createElement('label');
+      label.textContent = target;
+      label.setAttribute('for', 'odMap_' + target);
+      var sel = document.createElement('select');
+      sel.id = 'odMap_' + target;
+      var blank = document.createElement('option');
+      blank.value = ''; blank.textContent = '-- choose --';
+      sel.appendChild(blank);
+      headers.forEach(function (h) {
+        var opt = document.createElement('option');
+        opt.value = h; opt.textContent = h;
+        if (guess[target] === h) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      wrap.appendChild(label);
+      wrap.appendChild(sel);
+      el.mapperGrid.appendChild(wrap);
+      selects[target] = sel;
+    });
+    el.mapper.setAttribute('data-active', '1');
+    el.mapperRun.onclick = function () {
+      var mapping = {}, values = [], ok = true;
+      FIELD_ORDER.forEach(function (target) {
+        var v = selects[target].value;
+        mapping[target] = v;
+        if (!v) ok = false;
+        values.push(v);
+      });
+      var distinct = {};
+      values.forEach(function (v) { if (v) distinct[v] = (distinct[v] || 0) + 1; });
+      var dup = Object.keys(distinct).some(function (k) { return distinct[k] > 1; });
+      if (!ok) { showError('Choose a column for all four fields.'); return; }
+      if (dup) { showError('Each field needs a different column.'); return; }
+      hideError();
+      state.mapping = mapping;
+      runCheck();
+    };
+  }
+
+  // ---------------------------------------------------------------
+  // File handling
+  // ---------------------------------------------------------------
+  function handleFile(file) {
+    resetUI();
+    if (!file) return;
+    showProgress('Reading your file...');
+    var reader = new FileReader();
+    reader.onerror = function () { showError('Could not read that file.'); };
+    reader.onload = function () {
+      var text = String(reader.result || '');
+      var rows;
+      try { rows = parseCSV(text); } catch (e) { showError('That file does not look like a CSV.'); return; }
+      if (!rows.length || rows.length < 2) {
+        showError('The CSV needs a header row and at least one data row.'); return;
+      }
+      var headers = rows[0].map(function (h) { return String(h).trim(); }).filter(function (h) { return h.length > 0; });
+      if (headers.length < 4) {
+        showError('The CSV needs at least 4 columns: period, entity, value, arrival.'); return;
+      }
+      state.csvText = text;
+      state.headers = headers;
+      hideProgress();
+      var guess = autoDetect(headers);
+      var complete = FIELD_ORDER.every(function (k) { return guess[k]; });
+      if (complete) {
+        state.mapping = guess;
+        runCheck();
+      } else {
+        showMapper(headers, guess);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  el.file.addEventListener('change', function () {
+    if (el.file.files && el.file.files[0]) handleFile(el.file.files[0]);
+  });
+  el.drop.addEventListener('dragover', function (e) { e.preventDefault(); el.drop.classList.add('od-drag'); });
+  el.drop.addEventListener('dragleave', function () { el.drop.classList.remove('od-drag'); });
+  el.drop.addEventListener('drop', function (e) {
+    e.preventDefault();
+    el.drop.classList.remove('od-drag');
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) handleFile(f);
+  });
+
+  // ---------------------------------------------------------------
+  // Pyodide (lazy: only loaded once a file has been chosen)
+  // ---------------------------------------------------------------
+  function loadScriptTag(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = src;
+      s.onload = function () { resolve(); };
+      s.onerror = function () { reject(new Error('failed to load ' + src)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function getPyodide() {
+    if (pyodidePromise) return pyodidePromise;
+    pyodidePromise = (async function () {
+      if (typeof window.loadPyodide !== 'function') {
+        await loadScriptTag('./pyodide/pyodide.js');
+      }
+      var pyodide = await window.loadPyodide({ indexURL: './pyodide/' });
+      await pyodide.loadPackage(['numpy', 'pandas', 'scipy', 'micropip']);
+      return pyodide;
+    })();
+    return pyodidePromise;
+  }
+
+  // ---------------------------------------------------------------
+  // Run the screen
+  // ---------------------------------------------------------------
+  function friendlyError(err) {
+    var msg = (err && err.message) ? err.message : String(err);
+    var matches = msg.match(/[A-Za-z_]*Error: [^\n]+/g);
+    if (matches && matches.length) {
+      return 'Could not run the check: ' + matches[matches.length - 1].replace(/^[A-Za-z_]*Error:\s*/, '');
+    }
+    return 'Could not run the check on this file. Check that it has the four expected columns and at least two periods.';
+  }
+
+  async function runCheck() {
+    hideMapper();
+    hideResult();
+    hideError();
+    try {
+      showProgress('Loading the checker in your browser (first run only, please wait)...');
+      var pyodide = await getPyodide();
+      showProgress('Installing pit-release-gate...');
+      var wheelUrl = new URL('pyodide/pit_release_gate-0.1.0-py3-none-any.whl', document.baseURI).href;
+      pyodide.globals.set('OWNDATA_CSV_TEXT', state.csvText);
+      pyodide.globals.set('OWNDATA_COLMAP', JSON.stringify(state.mapping));
+      pyodide.globals.set('OWNDATA_WHEEL_URL', wheelUrl);
+      showProgress('Running the gate on your data...');
+      var code = document.getElementById('owndata-py').textContent;
+      var resultJson = await pyodide.runPythonAsync(code);
+      var result = JSON.parse(resultJson);
+      hideProgress();
+      renderResult(result);
+      var receiptText = buildReceiptText(result);
+      el.receipt.textContent = receiptText;
+      sendReport(receiptText);
+    } catch (err) {
+      showError(friendlyError(err));
+    }
+  }
+
+  function pctOrNever(released, frac) {
+    return released ? (Math.round(frac * 100) + '% complete') : 'never released (withheld throughout)';
+  }
+
+  function renderResult(r) {
+    el.resultKv.innerHTML = '';
+    function kv(k, v) {
+      var kd = document.createElement('div'); kd.className = 'k'; kd.textContent = k;
+      var vd = document.createElement('div'); vd.className = 'v'; vd.textContent = v;
+      el.resultKv.appendChild(kd); el.resultKv.appendChild(vd);
+    }
+    kv('Rows', r.rows);
+    kv('Periods', r.periods + ' (train ' + r.train_periods + ' / live ' + r.live_periods + ')');
+    kv('Entities', r.entities);
+    kv('Trailing rho_hat', r.rho_trailing.toFixed(3) + (r.susceptible ? '  (susceptible)' : '  (not susceptible)'));
+    kv('Naive release', pctOrNever(r.naive_released, r.naive_completeness));
+    kv('Gated release', pctOrNever(r.gated_released, r.gated_completeness));
+    el.sentence.textContent = r.sentence;
+    el.result.setAttribute('data-active', '1');
+  }
+
+  function buildReceiptText(r) {
+    var now = new Date();
+    var tz = 'unknown';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'unknown'; } catch (e) {}
+    var lines = [
+      'RECEIPT: OWN DATA',
+      'Package                 : pit-release-gate ' + r.pkg_version,
+      'Source                  : ' + r.wheel_source,
+      '-',
+      'Rows in your CSV        : ' + r.rows,
+      'Distinct periods        : ' + r.periods + '  (train ' + r.train_periods + ' / live ' + r.live_periods + ')',
+      'Distinct entities       : ' + r.entities,
+      'Non-numeric rows dropped: ' + r.dropped_non_numeric_rows,
+      'Trailing rho_hat        : ' + r.rho_trailing.toFixed(3) + '  (susceptible=' + r.susceptible + ', threshold=0.10)',
+      'Naive release           : ' + pctOrNever(r.naive_released, r.naive_completeness),
+      'Gated release           : ' + pctOrNever(r.gated_released, r.gated_completeness),
+      'Delta                   : ' + r.delta_periods.toFixed(2) + ' periods longer under the gate',
+      '-',
+      'Timestamp (UTC)         : ' + now.toISOString(),
+      'Timezone                : ' + tz,
+      'Browser                 : ' + navigator.userAgent,
+      'Screen                  : ' + screen.width + 'x' + screen.height,
+      '-',
+      'This receipt carries only the summary numbers above. No column values or row data were sent.'
+    ];
+    return lines.join('\n');
+  }
+
+  function sendReport(text) {
+    try {
+      fetch(REPORT_URL, {
+        method: 'POST', body: text, keepalive: true,
+        headers: { 'Title': 'receipt: own data', 'Tags': 'bar_chart' }
+      }).catch(function () {});
+    } catch (e) {}
+    if (WORKER_BASE) {
+      try {
+        fetch(WORKER_BASE + '/receipt', {
+          method: 'POST', keepalive: true,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: 'receipt: own data', body: text })
+        }).catch(function () {});
+      } catch (e) {}
+    }
+  }
+})();
+</script>
+<!-- OWN-DATA END -->
+
 <div class="wrap">
   <div class="kicker">pit-release-gate</div>
   <h1>Verified for you, just now.</h1>
