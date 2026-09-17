@@ -23,11 +23,6 @@
 <meta property="og:image" content="https://mwa-quickcheck-relay.maxwellapexlab.workers.dev/og.png">
 <meta name="twitter:card" content="summary_large_image">
 
-<link rel="preload" as="fetch" href="pyodide/pyodide.asm.wasm" type="application/wasm" crossorigin>
-<link rel="preload" as="fetch" href="pyodide/numpy-2.2.5-cp313-cp313-pyemscripten_2025_0_wasm32.whl" crossorigin>
-<link rel="preload" as="fetch" href="pyodide/pandas-2.3.3-cp313-cp313-pyemscripten_2025_0_wasm32.whl" crossorigin>
-<link rel="preload" as="fetch" href="pyodide/scipy-1.14.1-cp313-cp313-pyemscripten_2025_0_wasm32.whl" crossorigin>
-
 <style>
   :root {
     color-scheme: light dark;
@@ -123,28 +118,6 @@
   }
   details > summary:active { opacity: 0.8; }
   .details-body { margin: 4px 0 10px 0; }
-  .scenario-grid { display: flex; flex-direction: column; gap: 10px; margin: 10px 0; }
-  @media (min-width: 640px) { .scenario-grid { flex-direction: row; } }
-  .scenario-btn {
-    display: block; width: 100%; flex: 1 1 auto; min-height: 56px;
-    font-size: 0.95rem; font-weight: 600; padding: 8px 14px;
-    border: 1px solid var(--border); border-radius: 10px;
-    background: var(--box-bg); color: var(--fg); cursor: pointer;
-  }
-  .scenario-btn:active { opacity: 0.8; }
-  .scenario-btn:disabled { opacity: 0.5; cursor: default; }
-  #stage2Progress { font-size: 0.85rem; color: var(--muted); margin: 4px 0 12px 0; min-height: 1.2em; }
-  .action-grid { display: flex; flex-direction: column; gap: 10px; margin: 20px 0 10px 0; }
-  @media (min-width: 640px) { .action-grid { flex-direction: row; } }
-  .action-btn {
-    display: flex; align-items: center; justify-content: center; text-align: center;
-    width: 100%; flex: 1 1 auto; min-height: 48px; box-sizing: border-box;
-    font-size: 0.95rem; font-weight: 600; padding: 8px 14px;
-    border: 1px solid var(--border); border-radius: 10px;
-    background: var(--box-bg); color: var(--fg); text-decoration: none; cursor: pointer;
-  }
-  .action-btn:active { opacity: 0.8; }
-  .action-btn:disabled { opacity: 0.5; cursor: default; }
   .figshare-embed { width: 100%; height: 420px; border: 1px solid var(--border); border-radius: 8px; }
   .pdf-embed { width: 100%; height: 480px; border: 1px solid var(--border); border-radius: 8px; }
   .dl-pdf-btn {
@@ -153,8 +126,7 @@
     background: var(--box-bg); color: var(--fg); text-decoration: none; font-size: 0.88rem; font-weight: 600;
   }
   footer { margin-top: 32px; font-size: 0.78rem; color: var(--muted); }
-  .fail-line { padding: 10px 12px; border: 1px solid var(--fail); border-radius: 6px; color: var(--fail); font-size: 0.9rem; }
-#actionRow{display:none!important}#stage2Progress{display:none!important}
+  footer .links a { margin-right: 10px; }
 </style>
 </head>
 <body>
@@ -166,24 +138,21 @@
   </p>
 
   <!-- ============================================================= -->
-  <div class="action-grid" id="actionRow">
-    <button class="action-btn" id="runLiveBtn">Run it live in your browser (about 1 minute)</button>
-    <a class="action-btn" id="binderLink" href="https://mybinder.org/v2/gist/MaxWellApexLab/fb6258ac4f36db0da2ee31da6221ba5c/HEAD?urlpath=voila%2Frender%2Fquickstart_pit_release_gate.ipynb" target="_blank" rel="noopener">Live notebook (Binder, 20 to 60 s)</a>
-    <a class="action-btn" href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7016199" target="_blank" rel="noopener">Paper on SSRN</a>
-    <a class="action-btn" href="https://github.com/MaxWellApexLab/pit-release-gate" target="_blank" rel="noopener">Code on GitHub</a>
-  </div>
-
-  <div class="scenario-grid" id="scenarioButtons">
-    <button class="scenario-btn" data-scenario="llm_eval">Run again: LLM eval logs</button>
-    <button class="scenario-btn" data-scenario="ab_test">Run again: A/B test</button>
-    <button class="scenario-btn" data-scenario="retention">Run again: Retention metric</button>
+  <div class="card" id="statusPanel">
+    <h3 style="margin-top:0;">Status</h3>
+    <div class="kv" id="statusKv">
+      <div class="k">Page requested</div><div class="v" id="statusHit">checking...</div>
+      <div class="k">Release verified (server)</div><div class="v" id="statusRelease">checking...</div>
+      <div class="k">Live notebook</div><div class="v" id="statusBinder">checking...</div>
+      <div class="k">Paper fetched</div><div class="v" id="statusPaper">checking...</div>
+    </div>
   </div>
 
   <p class="intro">
     This page downloads and verifies the public pit-release-gate release in your browser
-    automatically, no tap needed. Running its own tests and applying its screen to three
-    synthetic business scenarios is heavier, so that step only starts when you tap "Run it
-    live in your browser" above. Either way, the result is reported below and to its author.
+    automatically, no tap needed. The same release, the paper, and a live notebook run are
+    independently fetched and verified server side on every open, see Status above. A full
+    reference run is kept below either way, and reported to its author.
   </p>
   <div class="meta">
     Source package: <a href="https://pypi.org/project/pit-release-gate/0.1.0/" target="_blank" rel="noopener">pit-release-gate 0.1.0 on PyPI</a>
@@ -196,14 +165,14 @@
   <pre class="box" id="stage1Receipt" hidden></pre>
 
   <!-- ============================================================= -->
-  <details class="section-details">
+  <details class="section-details" open>
     <summary>Reference run on the author's machine</summary>
     <div class="details-body">
       <h2 id="refRunHeading">Reference run on the author's machine</h2>
       <p class="note">
         Precomputed by the page author in a native Python environment (not this browser) before
         publishing, so this information is available the instant the page opens, independent of
-        whether Stage 2 below succeeds on your device.
+        the in-browser download receipt or the server-side status above.
       </p>
       <div class="kv" id="refRunMeta"></div>
       <h3>8 included checks, direct call</h3>
@@ -223,11 +192,6 @@
   </details>
 
   <!-- ============================================================= -->
-  <h2>Live run in your browser (Stage 2, best effort)</h2>
-  <div id="stage2Progress">Not started. Tap "Run it live in your browser" above to run this in your browser (about 1 minute).</div>
-  <div id="stage2Content"></div>
-
-  <!-- ============================================================= -->
   <details class="section-details">
     <summary>What this runs</summary>
     <div class="details-body">
@@ -237,8 +201,8 @@
         gate withholds only the signals whose susceptibility is above a threshold, waiting until enough
         of the cross-section has arrived to remove the bias, while benign signals still release early.
         A completeness monitor tracks what fraction of each period's cross-section has arrived so the
-        gate knows when it is safe to release. Below is the paper it comes from, the code, and (further
-        down) a live run of it in this browser.
+        gate knows when it is safe to release. Below is the paper it comes from, the code, and a
+        reference run of it kept from the author's own machine.
       </p>
     </div>
   </details>
@@ -280,317 +244,20 @@
 
   <!-- ============================================================= -->
   <footer>
-    Everything above runs client side. Nothing of yours is used or uploaded. View source to see
-    exactly what runs. Add <code>?report=0</code> to the URL to disable reporting.
+    <p class="links">
+      <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7016199" target="_blank" rel="noopener">Paper on SSRN</a>
+      <a href="https://github.com/MaxWellApexLab/pit-release-gate" target="_blank" rel="noopener">Code on GitHub</a>
+      <a href="https://pypi.org/project/pit-release-gate/0.1.0/" target="_blank" rel="noopener">Package on PyPI</a>
+      <a href="https://mybinder.org/v2/gist/MaxWellApexLab/fb6258ac4f36db0da2ee31da6221ba5c/HEAD?urlpath=voila%2Frender%2Fquickstart_pit_release_gate.ipynb" target="_blank" rel="noopener" id="footerBinderLink">Live notebook</a>
+    </p>
+    <p>
+      Nothing of yours is used or uploaded. View source to see exactly what runs. Add
+      <code>?report=0</code> to the URL to disable reporting.
+    </p>
   </footer>
 </div>
 
 <script id="page-data" type="application/json">{"pkg_version": "0.1.0", "wheel_sha256": "6e8a462b2259e89c92e39bce10b4e4da27073d4fa760b23945554edbe7ec3579", "sdist_sha256": "e936def6efe9b41c43371bfe75bad4c5334d8b29a2d4e3537715b06d106f9afd", "python_version": "3.13.5", "platform": "Windows-11-10.0.26200-SP0", "test_names": ["test_benign_signals_release_early_at_36_to_39_percent", "test_component_behavior", "test_deadline_policy_is_always_unbiased", "test_kappa_sweep_ordering", "test_mild_leak_intermediate_operating_point", "test_reduced_simulation_end_to_end", "test_simulation_is_deterministic", "test_strong_leak_gated_bias_is_exactly_zero_at_full_completeness"], "test_count": 8, "test_passed": 8, "test_failed": 0, "test_method": "direct call of the 8 included test functions", "test_elapsed_s": 12.294769, "default_screen_text": "================================================================================================\nCompleteness-Aware Release Controller -- HONEST worked example (known ground truth)\nrho_hat fitted on 10 prior completed periods, frozen, applied to 60 eval periods.\nat release: comp%=completeness | flip%=decile disagreement vs complete | |biasB|=size-coef bias\n================================================================================================\n\nClean        (c_a=0.0, c_x=0.3)   rho_trailing=+0.005 (fitted ex ante)  realized per-period rho: -0.001±0.109  (benign -> release early)\n  policy        comp% [95%CI]    flip% [95%CI]   biasB(signed) [CI]   route\n  naive           35 ± 0.0      33.5 ± 4.0     -0.034 ±0.033   naive\n  threshold       90 ± 0.0      11.8 ± 1.5     +0.003 ±0.011   threshold\n  reweight        35 ± 0.0      40.0 ± 4.2     -0.031 ±0.046   reweight\n  deadline       100 ± 0.0       0.0 ± 0.0     +0.000 ±0.000   deadline\n  gated           36 ± 0.0      34.6 ± 3.7     -0.034 ±0.032   gated(phi_req=0.35)  <-- gated\n\nComposition  (c_a=0.0, c_x=2.0)   rho_trailing=-0.036 (fitted ex ante)  realized per-period rho: -0.013±0.098  (benign -> release early)\n  policy        comp% [95%CI]    flip% [95%CI]   biasB(signed) [CI]   route\n  naive           35 ± 0.0      38.7 ± 3.9     -0.052 ±0.074   naive\n  threshold       90 ± 0.0      12.7 ± 1.8     +0.005 ±0.014   threshold\n  reweight        35 ± 0.0      42.3 ± 4.2     -0.015 ±0.092   reweight\n  deadline       100 ± 0.0       0.0 ± 0.0     +0.000 ±0.000   deadline\n  gated           39 ± 0.0      36.4 ± 3.4     -0.038 ±0.062   gated(phi_req=0.39)  <-- gated\n\nMild-leak    (c_a=0.3, c_x=0.7)   rho_trailing=-0.526 (fitted ex ante)  realized per-period rho: -0.489±0.060  (SUSCEPTIBLE -> wait)\n  policy        comp% [95%CI]    flip% [95%CI]   biasB(signed) [CI]   route\n  naive           35 ± 0.0      50.4 ± 4.4     -0.319 ±0.044   naive\n  threshold       90 ± 0.0      21.6 ± 2.4     -0.088 ±0.012   threshold\n  reweight        35 ± 0.0      52.5 ± 4.0     -0.337 ±0.067   reweight\n  deadline       100 ± 0.0       0.0 ± 0.0     +0.000 ±0.000   deadline\n  gated           88 ± 0.0      24.3 ± 2.7     -0.099 ±0.012   gated(phi_req=0.88)  <-- gated\n\nStrong-leak  (c_a=1.0, c_x=0.7)   rho_trailing=-0.868 (fitted ex ante)  realized per-period rho: -0.863±0.019  (SUSCEPTIBLE -> wait)\n  policy        comp% [95%CI]    flip% [95%CI]   biasB(signed) [CI]   route\n  naive           35 ± 0.0      63.6 ± 2.8     -0.386 ±0.037   naive\n  threshold       90 ± 0.0      31.9 ± 2.2     -0.129 ±0.012   threshold\n  reweight        35 ± 0.0      67.0 ± 2.9     -0.410 ±0.043   reweight\n  deadline       100 ± 0.0       0.0 ± 0.0     +0.000 ±0.000   deadline\n  gated          100 ± 0.0       0.0 ± 0.0     +0.000 ±0.000   gated(phi_req=1.00)  <-- gated\n\n------------------------------------------------------------------------------------------------\nSensitivity: required-completeness slope kappa on Mild-leak (c_a=0.3, c_x=0.7)\n  kappa=0.5: phi_req=0.59  comp    59%±0.0  biasB -0.229±0.031\n  kappa=1.0: phi_req=0.83  comp    83%±0.0  biasB -0.118±0.018\n  kappa=2.0: phi_req=1.00  comp   100%±0.0  biasB +0.000±0.000\n\n========================================================================================\nREADING:\n  * 'deadline' is always unbiased (|biasB|~0) but releases latest (comp~100%) for ALL\n    signals -- a blanket timeliness penalty.\n  * 'naive' releases earliest but is biased exactly when rho_hat is large (Strong-leak).\n  * Selection on an OBSERVABLE (Composition row) does NOT bias OLS (|biasB|~0 even for\n    naive) and yields rho_hat~0 -- the gate correctly treats it as benign and releases\n    early, rather than over-withholding benign incompleteness.\n  * 'gated' sets a PER-SIGNAL required completeness from rho_hat: it matches 'naive'\n    timeliness on benign signals and rises toward 'deadline' (low bias) on genuinely\n    susceptible signals -- preventing release of leakage-biased incomplete cross-\n    sections WITHOUT a blanket timeliness penalty. (IPW reweighting cannot fix\n    selection-on-disturbance and is offered only as an optional composition-correction\n    module; the gate grades on completeness, which is what actually suppresses the bias.)\n========================================================================================\n", "default_screen_elapsed_s": 6.608542, "reference_run_utc": "2026-09-16T21:30:31Z", "total_elapsed_s": 19.219811, "scenarios": {"llm_eval": {"label": "LLM eval logs", "verdict": "LLM eval logs: trailing susceptibility rho_hat = -0.74 (threshold 0.10) -- this metric is susceptible. A result computed at day 4.9 of 14 (35% complete) would have been acted on by a naive release; the gate held the decision until day 14.0 of 14 (100% complete), 9.1 days later.", "receipt": "+-------------------------------------------------------------------------------------------------------------------------------------------------------------+\n| pit-release-gate VERIFICATION RECEIPT                                                                                                                       |\n| Package                 : pit-release-gate                                                                                                                  |\n| Installed version       : 0.1.0  (source: pip install from PyPI, native venv)                                                                               |\n| Wheel  sha256 (PyPI)    : 6e8a462b2259e89c92e39bce10b4e4da27073d4fa760b23945554edbe7ec3579                                                                  |\n| Sdist  sha256 (PyPI)    : e936def6efe9b41c43371bfe75bad4c5334d8b29a2d4e3537715b06d106f9afd  (downloaded + checksum-verified to source the included tests)   |\n| -                                                                                                                                                           |\n| Scenario                : LLM eval logs (synthetic)                                                                                                         |\n| -                                                                                                                                                           |\n| Included checks         : tests/test_reproduces_paper.py, sourced from the matching PyPI sdist                                                              |\n|                           (not shipped in the wheel), run against the installed package                                                                     |\n| Test method             : direct call of the 8 included test functions                                                                                      |\n| Test result             : PASS  (8 passed, 0 failed, 0 errors)                                                                                              |\n| -                                                                                                                                                           |\n| Screen applied to       : sample_panel_llm_eval (generated in this run) (24 periods x 60 conversations = 1440 rows)                                         |\n| Trailing rho_hat        : -0.738  (susceptible=True, threshold=0.10)                                                                                        |\n| Live evaluation periods : 16                                                                                                                                |\n| Naive release           : day 4.9 / 14  (35% complete)                                                                                                      |\n| Gated release           : day 14.0 / 14  (100% complete)                                                                                                    |\n| -                                                                                                                                                           |\n| Python                  : 3.13.5 (win32, native venv on the author's machine)                                                                               |\n| Scenario run time       : 0.1s                                                                                                                              |\n| Timestamp (UTC)         : 2026-09-16T21:30:31+00:00                                                                                                         |\n|                                                                                                                                                             |\n| Generated by running the public release of pit-release-gate from PyPI.                                                                                      |\n+-------------------------------------------------------------------------------------------------------------------------------------------------------------+", "elapsed_s": 0.08495, "rho_trailing": -0.7381544063499368, "susceptible": true}, "ab_test": {"label": "A/B test", "verdict": "A/B test: trailing susceptibility rho_hat = -0.49 (threshold 0.10) -- this metric is susceptible. A result computed at day 10.5 of 30 (35% complete) would have been acted on by a naive release; the gate held the decision until day 25.5 of 30 (85% complete), 15.0 days later.", "receipt": "+-------------------------------------------------------------------------------------------------------------------------------------------------------------+\n| pit-release-gate VERIFICATION RECEIPT                                                                                                                       |\n| Package                 : pit-release-gate                                                                                                                  |\n| Installed version       : 0.1.0  (source: pip install from PyPI, native venv)                                                                               |\n| Wheel  sha256 (PyPI)    : 6e8a462b2259e89c92e39bce10b4e4da27073d4fa760b23945554edbe7ec3579                                                                  |\n| Sdist  sha256 (PyPI)    : e936def6efe9b41c43371bfe75bad4c5334d8b29a2d4e3537715b06d106f9afd  (downloaded + checksum-verified to source the included tests)   |\n| -                                                                                                                                                           |\n| Scenario                : A/B test (synthetic)                                                                                                              |\n| -                                                                                                                                                           |\n| Included checks         : tests/test_reproduces_paper.py, sourced from the matching PyPI sdist                                                              |\n|                           (not shipped in the wheel), run against the installed package                                                                     |\n| Test method             : direct call of the 8 included test functions                                                                                      |\n| Test result             : PASS  (8 passed, 0 failed, 0 errors)                                                                                              |\n| -                                                                                                                                                           |\n| Screen applied to       : sample_panel_ab_test (generated in this run) (24 periods x 60 exposures = 1440 rows)                                              |\n| Trailing rho_hat        : -0.490  (susceptible=True, threshold=0.10)                                                                                        |\n| Live evaluation periods : 16                                                                                                                                |\n| Naive release           : day 10.5 / 30  (35% complete)                                                                                                     |\n| Gated release           : day 25.5 / 30  (85% complete)                                                                                                     |\n| -                                                                                                                                                           |\n| Python                  : 3.13.5 (win32, native venv on the author's machine)                                                                               |\n| Scenario run time       : 0.1s                                                                                                                              |\n| Timestamp (UTC)         : 2026-09-16T21:30:31+00:00                                                                                                         |\n|                                                                                                                                                             |\n| Generated by running the public release of pit-release-gate from PyPI.                                                                                      |\n+-------------------------------------------------------------------------------------------------------------------------------------------------------------+", "elapsed_s": 0.075307, "rho_trailing": -0.4904883844354698, "susceptible": true}, "retention": {"label": "Retention metric", "verdict": "Retention metric: trailing susceptibility rho_hat = -0.64 (threshold 0.10) -- this metric is susceptible. A result computed at day 10.5 of 30 (35% complete) would have been acted on by a naive release; the gate held the decision until day 30.0 of 30 (100% complete), 19.5 days later.", "receipt": "+-------------------------------------------------------------------------------------------------------------------------------------------------------------+\n| pit-release-gate VERIFICATION RECEIPT                                                                                                                       |\n| Package                 : pit-release-gate                                                                                                                  |\n| Installed version       : 0.1.0  (source: pip install from PyPI, native venv)                                                                               |\n| Wheel  sha256 (PyPI)    : 6e8a462b2259e89c92e39bce10b4e4da27073d4fa760b23945554edbe7ec3579                                                                  |\n| Sdist  sha256 (PyPI)    : e936def6efe9b41c43371bfe75bad4c5334d8b29a2d4e3537715b06d106f9afd  (downloaded + checksum-verified to source the included tests)   |\n| -                                                                                                                                                           |\n| Scenario                : Retention metric (synthetic)                                                                                                      |\n| -                                                                                                                                                           |\n| Included checks         : tests/test_reproduces_paper.py, sourced from the matching PyPI sdist                                                              |\n|                           (not shipped in the wheel), run against the installed package                                                                     |\n| Test method             : direct call of the 8 included test functions                                                                                      |\n| Test result             : PASS  (8 passed, 0 failed, 0 errors)                                                                                              |\n| -                                                                                                                                                           |\n| Screen applied to       : sample_panel_retention (generated in this run) (24 periods x 60 cohort members = 1440 rows)                                       |\n| Trailing rho_hat        : -0.642  (susceptible=True, threshold=0.10)                                                                                        |\n| Live evaluation periods : 16                                                                                                                                |\n| Naive release           : day 10.5 / 30  (35% complete)                                                                                                     |\n| Gated release           : day 30.0 / 30  (100% complete)                                                                                                    |\n| -                                                                                                                                                           |\n| Python                  : 3.13.5 (win32, native venv on the author's machine)                                                                               |\n| Scenario run time       : 0.1s                                                                                                                              |\n| Timestamp (UTC)         : 2026-09-16T21:30:31+00:00                                                                                                         |\n|                                                                                                                                                             |\n| Generated by running the public release of pit-release-gate from PyPI.                                                                                      |\n+-------------------------------------------------------------------------------------------------------------------------------------------------------------+", "elapsed_s": 0.075531, "rho_trailing": -0.6417940567654876, "susceptible": true}}, "scenario_order": ["llm_eval", "ab_test", "retention"], "papers": [{"key": "p1", "title": "Correct-by-Construction Factor Computation: A Verifiably Point-in-Time Engine for Tradeable Signals", "authors": ["Kuan Ta Wu", "Kuan-I Wu"], "year": 2026, "abstract_html": "<p dir=\"ltr\">PITROVE is a factor-computation engine built on a single principle: point-in-time (PIT) correctness is a verifiable construction invariant, not a claim. The engine couples a declarative, self-describing predictor specification with a non-bypassable validation gate that admits a signal to the feature store only if it satisfies five invariants: temporal causality, finiteness, key-uniqueness, non-degeneracy, and freshness. Most accounting signals are attached by an announcement-date backward join, which closes availability-timing leakage; same-period cross-sectional signals instead use a stronger statutory-deadline release rule that blocks both restatement leakage and the incomplete-cross-section leakage that naive as-of joins miss, demonstrated on the abnormal-accruals construction.<\/p><p dir=\"ltr\">Using the Open Asset Pricing catalogue as a standardized, reproducible workload — the role TPC benchmarks play for database systems — we instantiate 150 of its 212 predictors as 160 daily signals over 2,222 Taiwan-listed securities and roughly 8.0 million firm-day observations each. Every one of the 160 series records zero look-ahead violations, zero non-finite values, and zero duplicate keys, and the engine rebuilds the entire library (~1.3 billion signal values) from raw data in approximately sixteen minutes on a commodity workstation. A leakage-injection positive control establishes that the gate has discriminating power.<\/p><p dir=\"ltr\">We are explicit that this certifies integrity rather than profitability. A controlled experiment shows the statutory-deadline rule removes a systematic cross-sectional bias left in place by a naive announcement-date join. A real-Taiwan ablation on two cross-sectional signals finds the leakage-specific component is not detectable above finite-sample noise, indicating that this channel adds estimation noise rather than spuriously inflating performance. As an end-to-end demonstration that one codebase serves both research and production, a net-of-fee momentum signal generated by the engine compounds at 26.3% annually (Sharpe 1.24) against 12.0% for the market over twenty-one years.<br>Beyond finance, the five invariants and the statutory-deadline release rule constitute a general assurance technique for any pipeline that derives<\/p><p dir=\"ltr\">time-stamped features from staggered, revisable, cross-sectional inputs, including the construction of training and evaluation data for machine-learning systems, where temporal leakage is a well-documented failure mode (Kaufman et al., 2012). The non-bypassable build gate and the leakage-injection positive control are, in this sense, data-processing and assurance techniques; the equity-factor catalogue is the workload on which they are demonstrated.<br><\/p><p dir=\"ltr\">The contribution is the verifiable, portable, production-scale engine; the anomalies are merely its workload.<\/p><p dir=\"ltr\">JEL classification: C55, C58, C88, G11, G17.<\/p>", "doi": "10.6084/m9.figshare.32952482.v6", "doi_url": "https://doi.org/10.6084/m9.figshare.32952482.v6", "ssrn_id": 7016199, "ssrn_url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7016199", "figshare_url": "https://figshare.com/articles/preprint/Correct-by-Construction_Factor_Computation_A_Verifiably_Point-in-Time_Engine_for_Tradeable_Signals/32952482", "abstract_source": "figshare API (api.figshare.com/v2/articles/32952482)"}, {"key": "ssrn7391118", "title": "Measuring Incomplete-cross-section Leakage: A Matched Placebo, a Susceptibility Screen, and Evidence from Taiwan and US As-filed Data that the Channel is Benign and Correctable", "authors": ["Kuan Ta Wu", "Kuan I Wu"], "year": 2026, "abstract_html": "<p>Many cross-sectional factors, such as industry-relative ratios, abnormal accruals, and the residual of a same-period regression, require the full cross-section of peer firms. Because firms file on staggered dates, a characteristic constructed shortly after a fiscal period closes is estimated from only those firms that have already reported. We term the resulting concern incomplete-cross-section leakage and assess whether it biases backtested performance. The conventional diagnostic, namely the disagreement between the early-filing signal and the complete-cross-section signal, does not identify the bias, because that disagreement combines three components: sampling variation from the smaller subsample, a difference in the covariate composition of the early filers, and any dependence of filing speed on the component of the signal under study. Only the third constitutes leakage. We isolate it by holding the covariate composition fixed, either through a matched control group or, equivalently, through the partial correlation between filing latency and the regression residual conditional on the regressors. This partial correlation is the selection-bias term of a Heckman model; because it is considerably less noisy than the disagreement statistic, we adopt it as the primary measure and provide it as an ex-ante screen, validated on a controlled experiment with a known planted bias. We apply the framework to two markets. For Taiwan, abnormal accruals and industry-adjusted inventory change exhibit no detectable leakage, and the associated long-short Sharpe ratio is bounded within 0.13. For the United States, where filing dates are observed directly through the SEC EDGAR system, profitability characteristics appear strongly distorted (filing latency correlates approximately-0.30 with industry-adjusted return on assets), yet the distortion is almost entirely attributable to firm size: larger firms file earlier and are more profitable, and conditioning on size reduces the partial correlation to approximately +0.09. The bias is therefore small in both markets, and the portion that remains operates through an observable characteristic that a size-aware release rule corrects. A companion paper develops that release rule; the present paper quantifies the magnitude of the bias it addresses.<\/p>", "doi": "10.2139/ssrn.7391118", "doi_url": "https://doi.org/10.2139/ssrn.7391118", "ssrn_id": 7391118, "ssrn_url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7391118", "figshare_url": null, "abstract_source": "Crossref DOI metadata (api.crossref.org/works/10.2139/ssrn.7391118) -- SSRN's own abstract page blocked automated reads (see note)"}, {"key": "ssrn7391122", "title": "Susceptibility-graded Release Control: Preventing Incomplete-cross-section Leakage in Financial Machine-learning Pipelines without a Blanket Timeliness Penalty", "authors": ["Kuan Ta Wu", "Kuan I Wu"], "year": 2026, "abstract_html": "<p>Many financial signals are same-period cross-sectional estimates-industry-relative ratios, abnormal accruals, any characteristic defined as the residual of a peer-group regression. Because firms file on staggered dates, a signal computed shortly after a fiscal period closes is estimated on the early-filing subsample; when filing latency correlates with the regression disturbance, the estimate embeds forward-looking selection (\"incomplete-cross-section leakage\"), a channel that standard temporal train/test hygiene (purging, embargoing, as-of joins) does not address. Existing remedies are all-or-nothing: release at announcement (biased for susceptible signals) or withhold every signal until a statutory deadline (a blanket timeliness penalty). We present a release-control system that grades the required cross-sectional completeness per signal from a directly estimable susceptibility primitive-the partial correlation between filing latency and the complete-cross-section disturbance given the construction regressors. Benign signals release early; susceptible signals are withheld until the cross-section is complete enough to suppress selection bias, up to the deadline. On a known-truth simulation-with the susceptibility primitive fitted on prior completed periods and frozen before gating (no oracle)-the controller releases benign signals at 36-39% completeness (vs. a 35% floor) with no detectable systematic bias, and escalates strongly susceptible signals to the deadline endpoint, inheriting its zero bias (naive-release bias -0.39). The companion analysis (Wu and Wu, 2026b) shows on observed U.S. SEC filing timestamps that the primitive separates signals whose apparent distortion is benign observable composition from those with irreducible selection; here that separation drives the gate. The controller ships as a reference implementation and is designed to sit upstream of feature-store materialization.<\/p>", "doi": "10.2139/ssrn.7391122", "doi_url": "https://doi.org/10.2139/ssrn.7391122", "ssrn_id": 7391122, "ssrn_url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7391122", "figshare_url": null, "abstract_source": "Crossref DOI metadata (api.crossref.org/works/10.2139/ssrn.7391122) -- SSRN's own abstract page blocked automated reads (see note)"}], "readme_md": "# pit-release-gate\n\n[![CI](https://github.com/MaxWellApexLab/pit-release-gate/actions/workflows/ci.yml/badge.svg)](https://github.com/MaxWellApexLab/pit-release-gate/actions/workflows/ci.yml)\n[![codecov](https://codecov.io/gh/MaxWellApexLab/pit-release-gate/branch/master/graph/badge.svg)](https://codecov.io/gh/MaxWellApexLab/pit-release-gate)\n[![PyPI](https://img.shields.io/pypi/v/pit-release-gate)](https://pypi.org/project/pit-release-gate/)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)\n[![PIT Hygiene](https://img.shields.io/badge/PIT%20Hygiene-pledged-2ea44f)](https://github.com/MaxWellApexLab/pit-hygiene)\n\nCompleteness-aware release control for staggered-arrival cross-sectional data.\n\n**[Audit registry](https://github.com/MaxWellApexLab/pit-audit-registry) ·\n[Pledge](https://github.com/MaxWellApexLab/pit-hygiene) ·\n[Papers](#papers) ·\n[Worked example: pandas DataFrame](docs/from-dataframe.md) ·\n[Result schema](docs/results-schema.md)**\n\nRebuilt from as-filed SEC EDGAR filings, on observed filing dates, **7 of 14\nstandard fundamental signals are contaminated** by incomplete-cross-section\nleakage — [measured, reproducibly, in the companion registry](https://github.com/MaxWellApexLab/pit-audit-registry/blob/main/methodology/2026-08_sec-edgar/report.md).\nThis tool measures each signal's susceptibility *before* release and withholds\nonly the signals that need it. The screen costs one `fit_trailing` call per\nsignal.\n\n![Known-ground-truth demo: naive release is biased exactly when the leak is strong; the gate routes that signal to the deadline and its bias is exactly zero, while benign signals still release at ~36% completeness](https://raw.githubusercontent.com/MaxWellApexLab/pit-release-gate/master/docs/assets/demo_bias.png)\n\n*The shipped fixed-seed demo, where the right answer is planted: naive early\nrelease carries a systematic bias of −0.386 on the strong-leak signal; the gate\nroutes it to the deadline (bias exactly 0.0) while releasing the two benign\nsignals at 36–39% completeness. `tests/test_reproduces_paper.py` pins these\nnumbers; [`tools/make_readme_chart.py`](tools/make_readme_chart.py) redraws\nthis figure from the live demo.*\n\n**You need this if:**\n\n- you build **same-period cross-sectional signals** — industry-adjusted ratios,\n  cross-sectional ranks, peer medians — on entities that report on their own\n  schedule;\n- you **rebuild panels from as-filed sources** (EDGAR `companyfacts`, raw\n  filings) instead of using a vendor's curated release;\n- you own a **feature-store pipeline** where an as-of join reads whatever has\n  arrived by *t*;\n- you want a **per-signal susceptibility number** published next to every\n  released signal, the way a standard error is.\n\n**Not for you if** you are hunting look-ahead bugs in a backtest engine, or your\ndata has no arrival times — that is a different failure mode\n([scope statement](https://github.com/MaxWellApexLab/pit-audit-registry#what-gets-screened)).\n\n**No telemetry — structurally, not merely by default:** no module in this\npackage imports a transport, and [a test enforces that over every module](tests/test_export.py).\n\n## Install\n\n```bash\npip install pit-release-gate\n```\n\nRequires Python 3.10+ (`numpy`, `pandas`, `scipy`).\n\n## Quickstart (30 seconds)\n\n```python\nimport numpy as np\nfrom pit_release_gate import SusceptibilityGate, ReleaseController, make_group\n\nrng = np.random.default_rng(0)\n\n# 1. Fit the susceptibility gate on prior COMPLETED periods (honest estimation:\n#    never on the period being gated — its cross-section is still incomplete).\ntrain = [make_group(c_a=0.3, c_x=0.7, rng=rng) for _ in range(10)]\ngate = SusceptibilityGate(threshold=0.10)\nrho = gate.fit_trailing(train)\n\n# 2. Gate a fresh, live period with the frozen estimate.\ncontroller = ReleaseController(gate=gate)\nlive = make_group(c_a=0.3, c_x=0.7, rng=rng)\ndecision = controller.run_until_release(live, policy=\"gated\")\n\nprint(f\"rho_hat={rho:+.3f}  ->  {decision.action} \"\n      f\"at completeness {decision.completeness:.0%} ({decision.policy})\")\n```\n\nTo gate your own data, build an `AsOfDataStore` from your design matrix, signal\nvalues, and per-entity filing-arrival times, then call\n`ReleaseController.decide(store, t)` at each evaluation time — it returns\n`WITHHOLD`, `REWEIGHT_RELEASE`, or `RELEASE` plus the released values.\n\n## Screen your own panel\n\nOne long table — one row per (entity, period) — and one call. The table can be\na pandas DataFrame, a polars DataFrame, a pyarrow Table, or a dict of arrays:\ncolumns are read by duck typing, so the screen itself depends on no dataframe\nlibrary.\n\n```python\nfrom pit_release_gate import screen_dataframe\n\nrecord = screen_dataframe(\n    panel,                      # columns: period, arrival, value, size\n    value=[\"accruals\", \"roa\"],  # one signal or several\n    trailing_k=5,               # fit on 5 prior COMPLETED periods, then freeze\n)\nfor s in record[\"signals\"]:\n    print(s[\"name\"], s[\"verdict\"], s[\"periods_flagged\"], \"/\", s[\"periods_screened\"])\n```\n\nOr without writing any Python:\n\n```bash\npit-release-gate --csv panel.csv --value accruals --value roa --export results.json\n```\n\n```text\nscreened panel.csv: 2 signal(s), trailing_k=5, threshold=0.1\n  signal                    periods  flagged   mean rho  max |rho|  phi_req  verdict\n  accruals                        7        7    -0.8721     0.8841    1.000  susceptible\n  roa                             7        0    +0.0268     0.0564    0.377  benign\n  totals: 1 benign, 1 susceptible, 14 signal-cycles screened\n```\n\nThis is the same frozen protocol the [published audits](https://github.com/MaxWellApexLab/pit-audit-registry)\nuse: the estimate applied to a period is never fitted on that period, and the\nfirst `trailing_k` periods are used for fitting only. The output is a\n`pit-screen-results` v1.0 record — the file a *screened with* badge should\npoint at.\n\n**One caveat, stated up front.** A verdict fires if any single screened period\ncrosses the threshold, so it inherits that period's sampling noise\n(roughly `1 / sqrt(trailing_k x entities_per_period)`). On a small panel,\na reading just over the threshold may be noise. Establish your noise floor\nfirst — screen a signal you expect to be unexposed, or shuffle arrival order\nwithin periods and re-screen — before treating a marginal verdict as a finding.\n\n## What this catches that your current tools don't\n\n| guarantee | as-of join / bitemporal store | purged & embargoed CV | **pit-release-gate** |\n|---|---|---|---|\n| No value was read before it was available | ✅ | — | assumed as input (bring your arrival times) |\n| Train and test don't overlap through time | — | ✅ | — |\n| The **set of entities** present at *t* was not selected on the disturbance | ❌ | ❌ | **✅ measured per signal (ρ̂), gated per signal** |\n\nA point-in-time-correct join over an incomplete cross-section is a correct join\nover a biased sample. [Statement of need](#statement-of-need) has the full\nargument; the\n[as-of join methodology page](https://github.com/MaxWellApexLab/pit-audit-registry/blob/main/methodology/2026-08_feast-pit-join/report.md)\nhas the measured demonstration.\n\n## API overview\n\nFive public components, all importable from the top-level `pit_release_gate` package:\n\n| component | what it does |\n|---|---|\n| [`AsOfDataStore`](src/pit_release_gate/store.py) | Holds one period's as-filed records for a cross-sectional group: design matrix, signal values, and a filing-arrival time per entity. |\n| [`CompletenessMonitor`](src/pit_release_gate/monitor.py) | Reports the arrived fraction at an evaluation time, plus a composition-shift gauge for the arrived subset. |\n| [`SusceptibilityGate`](src/pit_release_gate/gate.py) | Estimates ρ̂, the partial correlation between filing latency and the complete-cross-section residual given observables. `fit_trailing` enforces the honest-estimation contract: prior *completed* periods only. |\n| [`PropensityReweighter`](src/pit_release_gate/reweight.py) | Inverse-filing-propensity weights. Included to make a negative result executable: reweighting on observables corrects composition, but cannot remove selection on the disturbance. |\n| [`ReleaseController`](src/pit_release_gate/controller.py) | Maps \\|ρ̂\\| to a required completeness `φ_req = min(1, φ_min + κ·\\|ρ̂\\|)` and returns `WITHHOLD` / `REWEIGHT_RELEASE` / `RELEASE` at each evaluation time. |\n\n`make_group`, `run_demo` and `demo` ([`simulate.py`](src/pit_release_gate/simulate.py))\ngenerate and run the known-ground-truth worked example described below.\n\n## The known-ground-truth demo\n\nThe package ships a self-contained worked example with a *planted* leakage strength,\nso the right answer is known exactly and no licensed data is needed:\n\n```bash\npit-release-gate            # or: python -m pit_release_gate\n```\n\nReal output, abridged to the signal the gate exists for:\n\n```text\nStrong-leak  (c_a=1.0, c_x=0.7)   rho_trailing=-0.868 (fitted ex ante)  (SUSCEPTIBLE -> wait)\n  policy        comp% [95%CI]    flip% [95%CI]   biasB(signed) [CI]   route\n  naive           35 ± 0.0      63.6 ± 2.8     -0.386 ±0.037   naive\n  deadline       100 ± 0.0       0.0 ± 0.0     +0.000 ±0.000   deadline\n  gated          100 ± 0.0       0.0 ± 0.0     +0.000 ±0.000   gated(phi_req=1.00)  <-- gated\n```\n\nIt compares five release policies (`naive`, `threshold`, `reweight`, `deadline`,\n`gated`) on four signal types. Headline behavior:\n\n| signal | susceptibility ρ̂ | gated releases at | gated bias |\n|---|---|---|---|\n| Clean | ≈ +0.005 (benign) | **36%** completeness | ≈ 0 |\n| Composition (selection on observables only) | ≈ −0.036 (benign) | **39%** completeness | ≈ 0 |\n| Mild leak | ≈ −0.53 | 88% completeness | −0.099 (naive: −0.319) |\n| Strong leak | ≈ −0.87 | 100% (deadline) | **exactly 0.0** (naive: −0.386) |\n\nA sensitivity sweep of the policy slope κ shows the timeliness–bias dial:\nκ = 0.5 → release at 59% completeness (bias −0.229); κ = 1.0 → 83% (−0.118);\nκ = 2.0 → 100% (bias exactly 0). The demo is deterministic (fixed seed), and\n`tests/test_reproduces_paper.py` asserts these numbers.\n\n## Statement of need\n\nWhen the entities of a cross-section report on staggered dates — companies filing\nfinancial statements are the canonical case — any same-period cross-sectional signal\ncomputed before the last filer arrives is estimated from an incomplete, and possibly\n*selectively* incomplete, cross-section. If filing timing depends on the very\ndisturbance the signal measures, releasing early produces a systematic bias\n(incomplete-cross-section leakage), while a blanket wait-for-the-deadline rule removes\nthe bias at a timeliness cost paid by every signal, biased or not.\n\nPoint-in-time discipline in ML pipelines currently rests on tooling that answers one\nquestion: *was this value readable at time t?* Feature-store as-of joins, bitemporal\nand vintage-aware storage, and purged or embargoed cross-validation all enforce\nread-time correctness, and they do it well.\n\nNone of them answers a second question: given that every value read was legitimately\nreadable, was the *set* of entities that had reported by t a selected sample? An\nas-of join over an incomplete cross-section is a correct join over a biased sample.\nThe two failures need different remedies — the first is fixed by timestamp hygiene,\nthe second only by waiting or by an explicit correction. Researchers building\ncross-sectional signals on staggered-arrival panels have had no routine, per-signal\nscreen for the second. `pit-release-gate` is that screen, plus the release controller\nthat acts on it: one `fit_trailing` call per signal, so reporting a susceptibility\nestimate alongside a released signal costs about as much as reporting a standard\nerror.\n\n## Export your screen result\n\n```bash\npit-release-gate --export results.json\n```\n\nwrites a `pit-screen-results` v1.0 record: per screened signal, how many periods\nwere screened, how many the measure flagged, mean and max ρ̂, the required\ncompleteness that was assigned, and the verdict (`benign` / `susceptible`), plus\nthe five settings that produced those verdicts. It is the file a *screened with*\nbadge should point at. The format is a standalone versioned interchange spec —\n[`docs/results-schema.md`](docs/results-schema.md) — that any other tool is free\nto emit or consume.\n\n**`--export` is fully offline**: it writes a local file and makes no network\ncall. Records carry summary statistics only — never input rows, file paths,\nusernames, hostnames, or any environment detail beyond the tool version — and no\nclock is read while building one, so the same screen always exports byte-identical\nbytes.\n\nWhere the record goes afterwards is entirely your business — commit it next to\nyour badge, publish it, or keep it. This tool does not send it anywhere. There is\nno background thread, no `atexit` hook, no anonymous usage counter, and nothing\nto opt out of.\n\nProgrammatic use, for screens on your own data:\n\n```python\nfrom pit_release_gate import build_results, screen_config, summarize_signal, validate_results\n\nsig = summarize_signal(\"accruals\", rhos=[...], phi_reqs=[...], rho_threshold=0.10)\nrecord = build_results([sig], screen_config(0.10, 0.35, 1.0, trailing_k=8, min_entities=6))\nassert validate_results(record) == []\n```\n\n## External references\n\n- Listed in [awesome-quant](https://github.com/wilsonfreitas/awesome-quant)\n  (Factor Analysis section).\n- The worked pandas example in the docs was contributed by an external\n  contributor ([#9](https://github.com/MaxWellApexLab/pit-release-gate/pull/9)).\n- The output record format is a separately versioned public spec\n  ([`docs/results-schema.md`](docs/results-schema.md)) so other tools can emit\n  or consume screen results without importing this package.\n- Seen in the wild: the gate and controller were read line by line in\n  QMX's systematic survey of backtest-safety tooling. Their quality\n  verdict: \"clean, small, and does real statistics ... worth reading as a\n  design reference\". The selection-on-arrival distinction now sits in\n  their design ledger as [row 78](https://github.com/MubarakHimself/QMX/blob/af6628888fb8901bf9e877cbd07e438dbb0f39b4/workroom/reference/03-wave2-supplement.md).\n  No formal citation, and none needed; traveling is the point.\n\n## Papers\n\nThe method and its evaluation are developed in three public preprints\n(paper 3 is under review at an IEEE conference; papers are self-archived\nwith DOIs pending journal publication):\n\n1. **Correct-by-Construction Factor Computation: A Verifiably Point-in-Time Engine\n   for Tradeable Signals** — [doi:10.6084/m9.figshare.32952482](https://doi.org/10.6084/m9.figshare.32952482)\n2. **Measuring Incomplete-Cross-Section Leakage: A Matched Placebo, a Susceptibility\n   Screen, and Evidence from Taiwan and US As-Filed Data** — [doi:10.6084/m9.figshare.33061955](https://doi.org/10.6084/m9.figshare.33061955)\n3. **Susceptibility-Graded Release Control: Preventing Incomplete-Cross-Section\n   Leakage in Financial Machine-Learning Pipelines without a Blanket Timeliness\n   Penalty** — [doi:10.6084/m9.figshare.33158615](https://doi.org/10.6084/m9.figshare.33158615)\n\nThis package is the reference implementation of paper 3's release controller; its\ndemo reproduces the paper's controlled experiment.\n\n## Badge\n\nIf you have run the susceptibility screen on your own data — whatever the result — you\nare welcome to say so:\n\n```markdown\n[![screened with pit-release-gate](https://img.shields.io/badge/screened%20with-pit--release--gate-blue)](https://github.com/MaxWellApexLab/pit-release-gate)\n```\n\nThe badge reads **screened with**, not *passed* — it states that the screen was run, the\nsame way a formatter badge states that the formatter was run. A benign result and a\nsusceptible result are equally worth badging; the second one arguably more, because it\nmeans the screen found something and your pipeline now waits for it.\n\n**Make it point at something.** A badge is worth reading only if there is evidence behind\nit. Commit your screen output — `pit-release-gate --export results.json` produces exactly\nthat file: which signals came out benign, which came out susceptible, and the required\ncompleteness each was assigned — and link the badge at it rather\nthan at this repo. A worked example is the OSAP screen in the\n[PIT audit registry](https://github.com/MaxWellApexLab/pit-audit-registry/blob/main/audits/2026-08_osap/report.md).\n\n**Related:** the [PIT Hygiene pledge](https://github.com/MaxWellApexLab/pit-hygiene) is a\nbroader, tool-neutral statement about how a staggered-arrival pipeline is built; this badge\nis the narrower statement that this particular screen was run.\n\n## Cite this\n\nSee [`CITATION.cff`](CITATION.cff). If you use this software, please cite paper 3:\n\n```bibtex\n@article{wu2026releasecontrol,\n  title  = {Susceptibility-Graded Release Control: Preventing Incomplete-Cross-Section\n            Leakage in Financial Machine-Learning Pipelines without a Blanket\n            Timeliness Penalty},\n  author = {Wu, Kuan-Ta and Wu, Kuan-I},\n  year   = {2026},\n  doi    = {10.6084/m9.figshare.33158615}\n}\n```\n\n## Community guidelines\n\n- **Report a bug or request a feature:** open an issue at\n  [github.com/MaxWellApexLab/pit-release-gate/issues](https://github.com/MaxWellApexLab/pit-release-gate/issues).\n- **Contribute:** see [CONTRIBUTING.md](CONTRIBUTING.md) for the development setup,\n  test requirements, and pull-request process.\n- **Get help:** open an issue with a minimal reproducing example, or email\n  maxwellapexlab@proton.me.\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n\nAn additional patent grant covers this implementation — see [PATENTS](PATENTS).\nMax Well Apex LLC holds pending U.S. patent applications on techniques this\nsoftware implements; the PATENTS file grants a royalty-free license to the\nclaims necessarily practiced by this implementation, with the customary\ntermination-on-litigation clause. In short: using, modifying, and shipping\nthis code is safe; the grant follows the Go project's PATENTS model.\n\n---\n\nMax Well Apex LLC — maxwellapexlab@proton.me\n"}</script>
-
-<script type="text/python" id="pyscript-setup">
-import js
-import sys, os, io, re, json, shutil, hashlib, tarfile, platform
-import importlib.metadata, importlib.util
-from datetime import datetime, timezone
-
-def log(msg):
-    js.__stage2Log(str(msg))
-
-def report(title, tags, text):
-    js.__reportFromPy(title, tags, text)
-
-# ---------------------------------------------------------------------
-# 1) Install the PUBLIC RELEASE from PyPI via micropip (no GitHub checkout,
-#    no extras), then print the version that actually got installed.
-# ---------------------------------------------------------------------
-import micropip
-log("Installing pit-release-gate 0.1.0 from PyPI via micropip ...")
-await micropip.install("pit-release-gate==0.1.0")
-
-PKG_VERSION = importlib.metadata.version("pit-release-gate")
-log(f"Installed pit-release-gate version: {PKG_VERSION}")
-
-# ---------------------------------------------------------------------
-# 2) Source the package's own included tests from the matching sdist
-#    (the wheel micropip installs does not ship tests/), checksum-verify
-#    it against the PyPI JSON API, then run the 8 test functions by
-#    DIRECT CALL (no pytest.main -- there is no subprocess in a browser
-#    sandbox, and pytest's own collection machinery is unreliable under
-#    Pyodide).
-# ---------------------------------------------------------------------
-from pyodide.http import pyfetch
-
-log(f"Looking up PyPI release metadata for pit-release-gate=={PKG_VERSION} ...")
-resp = await pyfetch(f"https://pypi.org/pypi/pit-release-gate/{PKG_VERSION}/json")
-pkg_meta = await resp.json()
-
-wheel_info = next(u for u in pkg_meta["urls"] if u["packagetype"] == "bdist_wheel")
-sdist_info = next(u for u in pkg_meta["urls"] if u["packagetype"] == "sdist")
-WHEEL_SHA256 = wheel_info["digests"]["sha256"]
-SDIST_SHA256 = sdist_info["digests"]["sha256"]
-log(f"PyPI wheel sha256: {WHEEL_SHA256}")
-log(f"PyPI sdist sha256: {SDIST_SHA256}")
-
-log("Downloading matching sdist to source the included tests ...")
-sdist_resp = await pyfetch(sdist_info["url"])
-sdist_bytes = await sdist_resp.bytes()
-actual_sha = hashlib.sha256(sdist_bytes).hexdigest()
-assert actual_sha == SDIST_SHA256, f"sdist checksum mismatch: {actual_sha} != {SDIST_SHA256}"
-log("sdist download checksum verified OK")
-
-os.makedirs("/tmp", exist_ok=True)
-sdist_path = "/tmp/pit_release_gate_sdist.tar.gz"
-with open(sdist_path, "wb") as f:
-    f.write(sdist_bytes)
-
-extract_dir = "/tmp/pit_release_gate_src"
-if os.path.isdir(extract_dir):
-    shutil.rmtree(extract_dir)
-with tarfile.open(sdist_path) as tf:
-    tf.extractall(extract_dir, filter="data")
-
-top = [d for d in os.listdir(extract_dir) if d.startswith("pit_release_gate-")][0]
-tests_src_dir = os.path.join(extract_dir, top, "tests")
-
-clean_tests_dir = "/tmp/pit_release_gate_tests_clean"
-if os.path.isdir(clean_tests_dir):
-    shutil.rmtree(clean_tests_dir)
-shutil.copytree(tests_src_dir, clean_tests_dir)
-test_file = os.path.join(clean_tests_dir, "test_reproduces_paper.py")
-
-spec = importlib.util.spec_from_file_location("test_reproduces_paper", test_file)
-tmod = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(tmod)
-
-needs_full = {
-    "test_benign_signals_release_early_at_36_to_39_percent",
-    "test_strong_leak_gated_bias_is_exactly_zero_at_full_completeness",
-    "test_mild_leak_intermediate_operating_point",
-    "test_deadline_policy_is_always_unbiased",
-    "test_kappa_sweep_ordering",
-}
-log("Running the included tests by direct call (no pytest.main) ...")
-full_fixture = tmod.run_demo(n_train=10, n_eval=60, verbose=False)
-test_names = sorted(n for n in dir(tmod) if n.startswith("test_"))
-TESTS_PASSED = TESTS_FAILED = 0
-for name in test_names:
-    fn = getattr(tmod, name)
-    try:
-        fn(full_fixture) if name in needs_full else fn()
-        TESTS_PASSED += 1
-        log(f"  PASSED {name}")
-    except Exception as e2:
-        TESTS_FAILED += 1
-        log(f"  FAILED {name}: {e2!r}")
-TESTS_METHOD = "direct call of the 8 included test functions"
-TESTS_RETURNCODE = 0 if TESTS_FAILED == 0 else 1
-log(f"Included checks: {TESTS_PASSED} passed, {TESTS_FAILED} failed "
-    f"(method: {TESTS_METHOD})")
-
-# ---------------------------------------------------------------------
-# 3) Scenario / screen generators. Same construction as the reference run
-#    the author precomputed natively: a synthetic point-in-time panel of
-#    N_PERIODS cross-sections of N_ASSETS units each, with a planted
-#    arrival-vs-residual correlation so susceptibility is known.
-# ---------------------------------------------------------------------
-import numpy as np
-import pandas as pd
-from scipy.stats import rankdata
-from pit_release_gate import (
-    AsOfDataStore, SusceptibilityGate, ReleaseController, CompletenessMonitor,
-)
-
-N_TRAIN_PERIODS = 8
-
-
-def _z(v):
-    return (v - v.mean()) / (v.std() + 1e-9)
-
-
-def _ols_resid(X, y):
-    b, *_ = np.linalg.lstsq(X, y, rcond=None)
-    return y - X @ b
-
-
-def _frame(period_id, n, size, x2, y, arrival, resid):
-    return pd.DataFrame({
-        "period": period_id,
-        "unit_id": [f"U{i:03d}" for i in range(n)],
-        "size": size, "x2": x2, "y": y,
-        "arrival": arrival, "true_resid": resid,
-    })
-
-
-def make_period_llm_eval(period_id, n, c_a, c_x, rng):
-    size = rng.standard_normal(n)
-    x2 = rng.standard_normal(n)
-    u = rng.standard_normal(n)
-    y = 0.0 + 0.6 * size - 0.4 * x2 + u
-    lat = -(c_a * _z(u) + c_x * _z(size)) + 0.5 * rng.standard_normal(n)
-    arrival = rankdata(lat) / n
-    X = np.column_stack([np.ones(n), size, x2])
-    resid = _ols_resid(X, y)
-    return _frame(period_id, n, size, x2, y, arrival, resid)
-
-
-def make_period_ab_test(period_id, n, c_a, c_x, rng):
-    size = rng.standard_normal(n)
-    arm = (rng.standard_normal(n) > 0).astype(float)
-    u = rng.standard_normal(n)
-    y = 0.0 + 0.3 * size + 0.5 * arm + u
-    lat = -(c_a * arm * _z(u)) + 0.5 * rng.standard_normal(n)
-    arrival = rankdata(lat) / n
-    X = np.column_stack([np.ones(n), size, arm])
-    resid = _ols_resid(X, y)
-    return _frame(period_id, n, size, arm, y, arrival, resid)
-
-
-def make_period_retention(period_id, n, c_a, c_x, rng):
-    size = rng.standard_normal(n)
-    x2 = rng.standard_normal(n)
-    u = rng.standard_normal(n)
-    y = 0.0 + 0.5 * size + 0.3 * x2 + u
-    lat = -(c_a * _z(u) + c_x * _z(x2)) + 0.5 * rng.standard_normal(n)
-    arrival = rankdata(lat) / n
-    X = np.column_stack([np.ones(n), size, x2])
-    resid = _ols_resid(X, y)
-    return _frame(period_id, n, size, x2, y, arrival, resid)
-
-
-SCENARIOS = {
-    "llm_eval": dict(label="LLM eval logs", maker=make_period_llm_eval,
-                      seed=20260916001, window_days=14, c_a=0.60, c_x=0.35,
-                      unit_noun="conversations"),
-    "ab_test": dict(label="A/B test", maker=make_period_ab_test,
-                     seed=20260916002, window_days=30, c_a=0.70, c_x=0.0,
-                     unit_noun="exposures"),
-    "retention": dict(label="Retention metric", maker=make_period_retention,
-                       seed=20260916003, window_days=30, c_a=0.55, c_x=0.35,
-                       unit_noun="cohort members"),
-}
-
-
-def df_to_store(g):
-    X = np.column_stack([np.ones(len(g)), g["size"].to_numpy(), g["x2"].to_numpy()])
-    return AsOfDataStore(X=X, y=g["y"].to_numpy(), arrival=g["arrival"].to_numpy(),
-                          size=g["size"].to_numpy(), truth_resid=g["true_resid"].to_numpy())
-
-
-def _run_panel(maker, seed, c_a, c_x, n_periods, n_assets, unit_noun, label):
-    t_start = datetime.now(timezone.utc)
-    rng = np.random.default_rng(seed)
-    panel = pd.concat(
-        [maker(p, n_assets, c_a, c_x, rng) for p in range(1, n_periods + 1)],
-        ignore_index=True,
-    )
-    periods_sorted = sorted(panel["period"].unique())
-    n_train = min(N_TRAIN_PERIODS, max(1, len(periods_sorted) // 2))
-    train_periods, live_periods = periods_sorted[:n_train], periods_sorted[n_train:]
-    train_stores = [df_to_store(panel[panel.period == p]) for p in train_periods]
-
-    gate = SusceptibilityGate(threshold=0.10)
-    rho_trailing = gate.fit_trailing(train_stores)
-    susceptible = gate.is_susceptible(rho_trailing)
-
-    monitor = CompletenessMonitor()
-    controller = ReleaseController(gate=gate, monitor=monitor)
-    policies = ["naive", "threshold", "deadline", "gated"]
-    records = []
-    for p in live_periods:
-        store = df_to_store(panel[panel.period == p])
-        for policy in policies:
-            d = controller.run_until_release(store, policy=policy)
-            records.append({"period": p, "policy": policy, "action": d.action,
-                             "completeness": d.completeness})
-    results = pd.DataFrame(records)
-    summary = results.groupby("policy")["completeness"].agg(["mean"]).round(3)
-
-    elapsed_s = (datetime.now(timezone.utc) - t_start).total_seconds()
-    return dict(label=label, rho_trailing=rho_trailing, susceptible=susceptible,
-                summary=summary, live_periods=live_periods, panel=panel,
-                n_periods=n_periods, n_assets=n_assets, unit_noun=unit_noun,
-                elapsed_s=elapsed_s)
-
-
-def _build_receipt(title_label, result, window_days, test_status, extra_note=""):
-    naive_pct = float(result["summary"].loc["naive", "mean"])
-    gated_pct = float(result["summary"].loc["gated", "mean"])
-    naive_day = naive_pct * window_days
-    gated_day = gated_pct * window_days
-    delta_days = gated_day - naive_day
-    verdict_text = (
-        f"{title_label}: trailing susceptibility rho_hat = {result['rho_trailing']:+.2f} "
-        f"(threshold 0.10) -- this metric is "
-        f"{'susceptible' if result['susceptible'] else 'not susceptible'}. "
-        f"A result computed at day {naive_day:.1f} of {window_days} "
-        f"({100*naive_pct:.0f}% complete) would have been acted on by a naive release; "
-        f"the gate held the decision until day {gated_day:.1f} of {window_days} "
-        f"({100*gated_pct:.0f}% complete), {delta_days:.1f} days later."
-    )
-    receipt_lines = [
-        title_label.upper() + " VERIFICATION RECEIPT" + extra_note,
-        "Package                 : pit-release-gate",
-        f"Installed version       : {PKG_VERSION}  (source: micropip.install from PyPI)",
-        f"Wheel  sha256 (PyPI)    : {WHEEL_SHA256}",
-        f"Sdist  sha256 (PyPI)    : {SDIST_SHA256}",
-        "-",
-        "Included checks         : tests/test_reproduces_paper.py, sourced from the matching PyPI sdist",
-        f"Test method             : {TESTS_METHOD}",
-        f"Test result             : {test_status}  ({TESTS_PASSED} passed, {TESTS_FAILED} failed)",
-        "-",
-        f"Screen applied to       : {result['n_periods']} periods x {result['n_assets']} "
-        f"{result['unit_noun']} = {len(result['panel'])} rows",
-        f"Trailing rho_hat        : {result['rho_trailing']:+.3f}  (susceptible={result['susceptible']}, threshold=0.10)",
-        f"Live evaluation periods : {len(result['live_periods'])}",
-        f"Naive release           : day {naive_day:.1f} / {window_days}  ({100*naive_pct:.0f}% complete)",
-        f"Gated release           : day {gated_day:.1f} / {window_days}  ({100*gated_pct:.0f}% complete)",
-        "-",
-        f"Python                  : {platform.python_version()} ({sys.platform}, Pyodide/WebAssembly in your browser)",
-        f"Scenario run time       : {result['elapsed_s']:.1f}s",
-        f"Timestamp (UTC)         : {datetime.now(timezone.utc).isoformat(timespec='seconds')}",
-        "",
-        "Generated by running the public release of pit-release-gate from PyPI.",
-    ]
-    width = max(len(l) for l in receipt_lines) + 2
-    box = ["+" + "-" * (width + 2) + "+"]
-    for l in receipt_lines:
-        box.append("| " + l.ljust(width) + " |")
-    box.append("+" + "-" * (width + 2) + "+")
-    return verdict_text, "\n".join(box)
-
-
-def run_live_screen(n_periods, n_assets):
-    """Stage 2's 'one screen' -- a general demonstration panel, sized down
-    on phones (12x30) and full size on desktop (24x60), printed as the
-    'Live run in your browser' receipt."""
-    test_status = "PASS" if TESTS_RETURNCODE == 0 else "FAIL"
-    log(f"Running the live screen ({n_periods} periods x {n_assets} assets) ...")
-    result = _run_panel(make_period_retention, 20260916099, 0.55, 0.35,
-                         n_periods, n_assets, "assets", "General panel")
-    verdict, receipt = _build_receipt("Live run in your browser", result, 30, test_status)
-    log(verdict)
-    log(receipt)
-    report("receipt", "receipt", receipt)
-
-
-def run_named_scenario(key):
-    test_status = "PASS" if TESTS_RETURNCODE == 0 else "FAIL"
-    cfg = SCENARIOS[key]
-    log(f"Running scenario: {cfg['label']} (24 periods x 60 {cfg['unit_noun']}) ...")
-    result = _run_panel(cfg["maker"], cfg["seed"], cfg["c_a"], cfg["c_x"],
-                         24, 60, cfg["unit_noun"], cfg["label"])
-    verdict, receipt = _build_receipt(cfg["label"], result, cfg["window_days"], test_status)
-    log(verdict)
-    log("  " + receipt.splitlines()[0])
-    report("receipt: " + cfg["label"], "receipt", verdict + "\n\n" + receipt)
-
-
-def run_all_named_scenarios():
-    for key in ("llm_eval", "ab_test", "retention"):
-        run_named_scenario(key)
-
-log("Setup complete.")
-</script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/18.0.13/lib/marked.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.15/purify.min.js"></script>
@@ -645,22 +312,69 @@ log("Setup complete.")
   }
 
   // ---------------------------------------------------------------
-  // Binder link: if the Worker has a live pre-warmed Binder server ready
-  // (see /binder), swap the static launch link for the ready one so a
-  // visitor lands immediately instead of waiting through a cold build.
-  // No window.open / no auto-navigation: this only rewrites the link.
+  // Status panel: fills itself from the Worker's GET /latest (hits time +
+  // the three server-side receipt titles) with no tap needed, and polls
+  // GET /binder separately to wire the "open" link and the footer's Live
+  // notebook link once a pre-warmed session is ready. No window.open / no
+  // auto-navigation anywhere: these calls only update text and href.
   // ---------------------------------------------------------------
-  if (WORKER_BASE) {
+  function fmtTs(iso) {
+    if (!iso) return 'not yet';
+    try { return new Date(iso).toLocaleString(); } catch (e) { return iso; }
+  }
+
+  function refreshBinderLink() {
+    if (!WORKER_BASE) return;
     fetch(WORKER_BASE + '/binder').then(function (r) { return r.json(); }).then(function (data) {
       if (data && data.url) {
-        var link = document.getElementById('binderLink');
-        if (link) {
-          link.href = data.url;
-          link.textContent = 'Live notebook (ready now)';
+        var footerLink = document.getElementById('footerBinderLink');
+        if (footerLink) {
+          footerLink.href = data.url;
+          footerLink.textContent = 'Live notebook (ready now)';
+        }
+        var binderEl = document.getElementById('statusBinder');
+        if (binderEl && !binderEl.querySelector('a')) {
+          var a = document.createElement('a');
+          a.href = data.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = ' (open)';
+          binderEl.appendChild(a);
         }
       }
     }).catch(function () {});
   }
+
+  function refreshStatus() {
+    if (!WORKER_BASE) return;
+    fetch(WORKER_BASE + '/latest').then(function (r) { return r.json(); }).then(function (data) {
+      var hitEl = document.getElementById('statusHit');
+      if (hitEl) hitEl.textContent = fmtTs(data.hits && data.hits.ts);
+
+      var rel = data.receipts && data.receipts['receipt: download (server)'];
+      var relEl = document.getElementById('statusRelease');
+      if (relEl) {
+        relEl.textContent = rel
+          ? fmtTs(rel.ts) + (rel.match === false ? ' (checksum mismatch)' : ' (verified)')
+          : 'not yet';
+      }
+
+      var paper = data.receipts && data.receipts['figshare download'];
+      var paperEl = document.getElementById('statusPaper');
+      if (paperEl) paperEl.textContent = paper ? fmtTs(paper.ts) : 'not yet';
+
+      var binder = data.receipts && data.receipts['binder executed'];
+      var binderEl = document.getElementById('statusBinder');
+      if (binderEl) binderEl.textContent = binder ? fmtTs(binder.ts) : 'not yet';
+
+      refreshBinderLink();
+    }).catch(function () {});
+  }
+
+  refreshStatus();
+  var statusPolls = 0;
+  var statusTimer = setInterval(function () {
+    statusPolls++;
+    refreshStatus();
+    if (statusPolls >= 23) clearInterval(statusTimer); // ~2 minutes at 5s each
+  }, 5000);
 
   // ---------------------------------------------------------------
   // Render: reference run (static, precomputed, shown at 0s)
@@ -849,176 +563,6 @@ log("Setup complete.")
     console.log('Stage 1 time: ' + ((stage1T1 - stage1T0) / 1000).toFixed(2) + 's');
   });
 
-  // ---------------------------------------------------------------
-  // Stage 2: best-effort live run with Pyodide, in the background.
-  // Self-hosted runtime first, then cdnjs (per spec), then jsdelivr
-  // (cdnjs does not currently mirror this Pyodide version, so jsdelivr
-  // is kept as the practically-working second fallback).
-  // ---------------------------------------------------------------
-  var PYODIDE_SOURCES = [
-    'pyodide/pyodide.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/pyodide/0.29.5/pyodide.js',
-    'https://cdn.jsdelivr.net/pyodide/v0.29.5/full/pyodide.js',
-  ];
-
-  function loadScript(src) {
-    return new Promise(function (resolve, reject) {
-      var s = document.createElement('script');
-      s.src = src;
-      s.onload = function () { resolve(src); };
-      s.onerror = function () { reject(new Error('failed to load ' + src)); };
-      document.head.appendChild(s);
-    });
-  }
-
-  function loadPyodideWithFallback(i) {
-    i = i || 0;
-    if (i >= PYODIDE_SOURCES.length) return Promise.reject(new Error('all pyodide sources failed'));
-    var src = PYODIDE_SOURCES[i];
-    var indexURL = src.slice(0, src.lastIndexOf('/') + 1);
-    return loadScript(src).then(function () {
-      return loadPyodide({ indexURL: indexURL });
-    }).catch(function (e) {
-      console.warn('pyodide source failed: ' + src, e);
-      return loadPyodideWithFallback(i + 1);
-    });
-  }
-
-  function withTimeout(promise, ms) {
-    var timer;
-    var timeout = new Promise(function (_, reject) {
-      timer = setTimeout(function () { reject(new Error('timed out after ' + (ms / 1000) + 's')); }, ms);
-    });
-    return Promise.race([promise, timeout]).finally(function () { clearTimeout(timer); });
-  }
-
-  var isPhone = window.matchMedia('(max-width: 640px)').matches ||
-    /Android|iPhone|iPod|Mobile/i.test(navigator.userAgent);
-  var SCREEN_PERIODS = isPhone ? 12 : 24;
-  var SCREEN_ASSETS = isPhone ? 30 : 60;
-
-  var PYSETUP = document.getElementById('pyscript-setup').textContent;
-
-  var stage2State = { pyodide: null, ready: false };
-
-  function appendStage2(text) {
-    var box = document.getElementById('stage2Content');
-    var pre = box.querySelector('pre.box');
-    if (!pre) { pre = el('pre', 'box'); box.appendChild(pre); }
-    pre.textContent += text + '\n';
-  }
-  window.__stage2Log = appendStage2;
-
-  function showStage2Failure() {
-    var box = document.getElementById('stage2Content');
-    box.innerHTML = '';
-    box.appendChild(el('div', 'fail-line',
-      'Full in-browser run needs a desktop browser. The download and checksum verification above ran on this device.'));
-    document.getElementById('stage2Progress').textContent = '';
-    document.querySelectorAll('.scenario-btn').forEach(function (b) { b.disabled = true; });
-  }
-
-  function runStage2() {
-    var progressEl = document.getElementById('stage2Progress');
-    // ?forcefail2=1 is a verification hook: it forces this branch so the
-    // "Stage 2 fails, Stage 1 still stands" path can be tested on demand.
-    if (typeof WebAssembly !== 'object' || params.get('forcefail2') === '1') {
-      progressEl.textContent = '';
-      showStage2Failure();
-      return Promise.resolve();
-    }
-    var t0 = performance.now();
-    var whole = loadPyodideWithFallback().then(function (pyodide) {
-      stage2State.pyodide = pyodide;
-      progressEl.textContent = 'Runtime loaded. Installing packages...';
-      // pytest itself is self-hosted too: the package's shipped test file
-      // imports pytest at module scope (fixtures, pytest.approx) even though
-      // this page calls the test functions directly rather than pytest.main().
-      return pyodide.loadPackage(['numpy', 'pandas', 'scipy', 'micropip', 'pytest']).then(function () {
-        progressEl.textContent = 'Running the package and its tests...';
-        return pyodide.runPythonAsync(PYSETUP);
-      }).then(function () {
-        progressEl.textContent = 'Running the live screen...';
-        return pyodide.runPythonAsync(
-          'run_live_screen(' + SCREEN_PERIODS + ', ' + SCREEN_ASSETS + ')'
-        );
-      }).then(function () {
-        progressEl.textContent = 'Running the three scenarios...';
-        return pyodide.runPythonAsync('run_all_named_scenarios()');
-      }).then(function () {
-        stage2State.ready = true;
-        progressEl.textContent = 'Ready.';
-        document.querySelectorAll('.scenario-btn').forEach(function (b) { b.disabled = false; });
-      });
-    });
-    return withTimeout(whole, 120000).catch(function (err) {
-      console.error('Stage 2 failed', err);
-      report('run_fail', 'x', 'RUN_FAIL ' + new Date().toISOString() + ' ' +
-        (err && err.message ? err.message : String(err)));
-      showStage2Failure();
-    }).finally(function () {
-      var t1 = performance.now();
-      console.log('Stage 2 total time: ' + ((t1 - t0) / 1000).toFixed(1) + 's');
-    });
-  }
-
-  window.runScenarioAgain = function (key) {
-    if (!stage2State.ready || !stage2State.pyodide) return;
-    document.querySelectorAll('.scenario-btn').forEach(function (b) { b.disabled = true; });
-    stage2State.pyodide.runPythonAsync('run_named_scenario(' + JSON.stringify(key) + ')').finally(function () {
-      document.querySelectorAll('.scenario-btn').forEach(function (b) { b.disabled = false; });
-    });
-  };
-
-  // ---------------------------------------------------------------
-  // Stage 2 is manual only. Nothing above this point loads the runtime or
-  // runs any Python; the wasm/wheels named in the <link rel=preload> tags
-  // in <head> may already be sitting in the browser's cache, but nothing
-  // executes them until the visitor taps a button. ensureStage2Started()
-  // is the single entry point, shared by the live-run button and the
-  // scenario buttons below, so a second tap while it is already running
-  // (or already done) is a no-op rather than a second run.
-  // ---------------------------------------------------------------
-  var stage2Promise = null;
-  function ensureStage2Started() {
-    if (!stage2Promise) {
-      stage2Promise = runStage2().then(function () {
-        if (!stage2State.ready) stage2Promise = null; // allow retry after a failure
-      });
-    }
-    return stage2Promise;
-  }
-
-  var runLiveBtn = document.getElementById('runLiveBtn');
-  var RUN_LIVE_LABEL = runLiveBtn.textContent;
-  runLiveBtn.addEventListener('click', function () {
-    runLiveBtn.disabled = true;
-    runLiveBtn.textContent = 'Running...';
-    ensureStage2Started().then(function () {
-      runLiveBtn.textContent = stage2State.ready ? 'Done' : RUN_LIVE_LABEL;
-      runLiveBtn.disabled = stage2State.ready;
-    });
-  });
-
-  document.querySelectorAll('.scenario-btn').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var key = btn.dataset.scenario;
-      if (stage2State.ready) {
-        window.runScenarioAgain(key);
-        return;
-      }
-      // Tapped before Stage 2 has run: start it (the main receipt), then
-      // run this scenario again once it is ready.
-      document.querySelectorAll('.scenario-btn').forEach(function (b) { b.disabled = true; });
-      runLiveBtn.disabled = true;
-      runLiveBtn.textContent = 'Running...';
-      ensureStage2Started().then(function () {
-        runLiveBtn.textContent = stage2State.ready ? 'Done' : RUN_LIVE_LABEL;
-        runLiveBtn.disabled = stage2State.ready;
-        if (stage2State.ready) window.runScenarioAgain(key);
-      });
-    });
-  });
 })();
 </script>
 </body>
