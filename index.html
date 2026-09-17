@@ -31,6 +31,8 @@
     --mut: #666666;
     --line: #e3e3e3;
     --ok: #1a7f37;
+    --bad: #c0392b;
+    --a: #2f6fed;
     --card: #fafafa;
     --link: #0a4f9e;
   }
@@ -41,6 +43,7 @@
       --mut: #9a9a9a;
       --line: #2a2a2a;
       --ok: #3fb950;
+      --bad: #ff6b6b;
       --card: #181818;
       --link: #7fb4ff;
     }
@@ -102,121 +105,173 @@
   .pdf-link { font-size: 0.88rem; margin: 10px 0 0; }
 
   footer { border-top: 1px solid var(--line); padding-top: 14px; font-size: 13px; color: var(--mut); }
-  footer .links a { color: inherit; margin-right: 14px; }
-  footer .disclosure { margin-top: 8px; font-size: 12px; }
+  footer .links { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; margin: 0; padding: 0; list-style: none; font-size: 15px; }
+  footer .links a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--line); }
+  footer .disclosure { margin-top: 12px; font-size: 9px; color: var(--mut); }
+
+  /* ---- Election night / The last ten meters (mock ui_v10_mock.html) ---- */
+  h2.sec { font-size: 18px; margin: 26px 0 10px; color: var(--mut); font-weight: 600; }
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 520px) { .duo { grid-template-columns: 1fr; } }
+  .pane { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--card); height: 180px; position: relative; overflow: hidden; }
+  .lab { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+  .lab.ok { color: var(--ok); } .lab.bad { color: var(--bad); }
+  .bar { height: 10px; background: var(--line); border-radius: 6px; overflow: hidden; margin: 6px 0; }
+  .bar i { display: block; height: 100%; background: var(--a); }
+  .big { font-size: 19px; font-weight: 700; margin: 2px 0; }
+  .pred { margin-top: 6px; padding: 6px 9px; border-radius: 8px; font-weight: 700; font-size: 14px; }
+  .pred.bad { background: rgba(192, 57, 43, .12); color: var(--bad); }
+  .pred.ok { background: rgba(26, 127, 55, .12); color: var(--ok); }
+  .pred.hold { background: rgba(120, 120, 120, .15); color: var(--mut); }
+  .stamp { display: inline-block; margin-top: 4px; padding: 2px 8px; font-size: 12px; border: 2px solid; border-radius: 6px; font-weight: 800; letter-spacing: .06em; transform: rotate(-6deg); }
+  .stamp.bad { color: var(--bad); border-color: var(--bad); }
+  .stamp.ok { color: var(--ok); border-color: var(--ok); }
+
+  /* election: 4 frames, 1.6 s each = 6.4 s loop, pure CSS */
+  .fr { position: absolute; left: 12px; right: 12px; top: 30px; opacity: 0; animation: cyc 6.4s infinite; }
+  .fr:nth-of-type(1) { animation-delay: 0s; } .fr:nth-of-type(2) { animation-delay: 1.6s; }
+  .fr:nth-of-type(3) { animation-delay: 3.2s; } .fr:nth-of-type(4) { animation-delay: 4.8s; }
+  @keyframes cyc { 0% { opacity: 0; } 2% { opacity: 1; } 23% { opacity: 1; } 25% { opacity: 0; } 100% { opacity: 0; } }
+
+  /* athletes: 6 s loop, emoji runners, pure CSS */
+  .track { position: relative; height: 66px; margin-top: 2px; border-bottom: 2px solid var(--line); }
+  .finish { position: absolute; right: 8px; top: 0; bottom: 0; border-right: 3px dashed var(--mut); }
+  .run { position: absolute; font-size: 26px; display: inline-block; animation-duration: 6s; animation-iteration-count: infinite; animation-timing-function: linear; }
+  .l1 { bottom: 0; } .l2 { bottom: 32px; }
+  .ln, .ln2 { position: absolute; left: 0; font-size: 11px; color: var(--mut); } .ln { bottom: 28px; } .ln2 { bottom: 58px; }
+  /* left pane: Lane 1 leads, trips at 90 m and lies before the line (never touches it); Lane 2 crosses */
+  .L1 { animation-name: lead; } .L2 { animation-name: chase; }
+  @keyframes lead { 0% { left: 0; transform: scaleX(-1) rotate(0); } 58% { left: 80%; transform: scaleX(-1) rotate(0); } 63% { left: 83%; transform: scaleX(-1) rotate(80deg) translateY(-6px); } 100% { left: 83%; transform: scaleX(-1) rotate(80deg) translateY(-6px); } }
+  @keyframes chase { 0% { left: 0; transform: scaleX(-1); } 60% { left: 70%; transform: scaleX(-1); } 90% { left: 93%; transform: scaleX(-1); } 100% { left: 93%; transform: scaleX(-1); } }
+  /* right pane: Lane 1 runs through the line and wins; Lane 2 stays behind */
+  .R1 { animation-name: through; } .R2 { animation-name: behind; }
+  @keyframes through { 0% { left: 0; transform: scaleX(-1); } 85% { left: 93%; transform: scaleX(-1); } 100% { left: 93%; transform: scaleX(-1) rotate(-25deg); } }
+  @keyframes behind { 0% { left: 0; transform: scaleX(-1); } 100% { left: 80%; transform: scaleX(-1); } }
+  .cap { position: absolute; left: 12px; right: 12px; bottom: 8px; opacity: 0; }
+  .cap.c1 { animation: cap1 6s infinite; } @keyframes cap1 { 0% { opacity: 1; } 58% { opacity: 1; } 60% { opacity: 0; } 100% { opacity: 0; } }
+  .cap.c2 { animation: cap2 6s infinite; } @keyframes cap2 { 0% { opacity: 0; } 60% { opacity: 0; } 62% { opacity: 1; } 88% { opacity: 1; } 90% { opacity: 0; } 100% { opacity: 0; } }
+  .cap.c3 { animation: cap3 6s infinite; } @keyframes cap3 { 0% { opacity: 0; } 90% { opacity: 0; } 92% { opacity: 1; } 100% { opacity: 1; } }
+
+  /* upload card + example table (mock: dashed card, thin-grid example table) */
+  .upload-card { border-style: dashed; padding: 18px 18px 16px; }
+  .upload-title { font-weight: 700; font-size: 17px; margin-bottom: 12px; }
+  .ex { border-collapse: collapse; font-size: 13px; width: 100%; max-width: 420px; margin: 10px 0; }
+  .ex th, .ex td { border: 1px solid var(--line); padding: 5px 10px; text-align: left; }
+  .ex th { color: var(--mut); font-weight: 600; background: var(--bg); }
 </style>
 </head>
 <body>
 <div class="w">
-  <h1>Some of your rows arrived early, but your signal already used them.</h1>
-  <p class="sub">Early rows are not a random sample. PIT measures how much a signal leans on them. Susceptible signals wait, and the rest ship now.</p>
+  <h1>Don't celebrate too early.</h1>
+  <p class="sub">The number you see today is a lead, not a result. Early rows are not a random sample. PIT measures how much a signal leans on them: susceptible signals wait, the rest ship now.</p>
+
+  <section id="sectionElection">
+    <h2 class="sec">Election night</h2>
+    <div class="duo">
+      <div class="pane"><div class="lab bad">Without PIT</div>
+        <div class="fr"><div class="t">9 pm &middot; 35% counted</div><div class="bar"><i style="width:35%"></i></div><div class="big">A 58% &middot; B 42%</div><div class="pred bad">Prediction: A wins</div></div>
+        <div class="fr"><div class="t">11 pm &middot; 60% counted</div><div class="bar"><i style="width:60%"></i></div><div class="big">A 51% &middot; B 49%</div><div class="pred bad">Prediction: A wins (still)</div></div>
+        <div class="fr"><div class="t">1 am &middot; 85% counted</div><div class="bar"><i style="width:85%"></i></div><div class="big">A 49% &middot; B 51%</div><div class="pred bad">Prediction: A wins (&hellip;)</div></div>
+        <div class="fr"><div class="t">2 am &middot; 100% counted</div><div class="bar"><i style="width:100%"></i></div><div class="big">A 48% &middot; B 52%</div><div class="pred bad">Result: B wins</div><span class="stamp bad">WRONG CALL</span></div>
+      </div>
+      <div class="pane"><div class="lab ok">With PIT</div>
+        <div class="fr"><div class="t">9 pm &middot; 35% counted</div><div class="bar"><i style="width:35%"></i></div><div class="big">A 58% &middot; B 42%</div><div class="pred hold">Not yet. Early precincts are not a sample.</div></div>
+        <div class="fr"><div class="t">11 pm &middot; 60% counted</div><div class="bar"><i style="width:60%"></i></div><div class="big">A 51% &middot; B 49%</div><div class="pred hold">Still moving. Hold.</div></div>
+        <div class="fr"><div class="t">1 am &middot; 85% counted</div><div class="bar"><i style="width:85%"></i></div><div class="big">A 49% &middot; B 51%</div><div class="pred hold">Almost stable. Hold.</div></div>
+        <div class="fr"><div class="t">2 am &middot; 100% counted</div><div class="bar"><i style="width:100%"></i></div><div class="big">A 48% &middot; B 52%</div><div class="pred ok">Release: B wins</div><span class="stamp ok">RIGHT</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sectionAthlete">
+    <h2 class="sec">The last ten meters</h2>
+    <div class="duo">
+      <div class="pane"><div class="lab bad">Without PIT</div>
+        <div class="track"><div class="finish"></div><span class="ln">Lane 1</span><span class="run l1 L1">&#127939;</span><span class="ln2">Lane 2</span><span class="run l2 L2">&#127939;&zwj;&#9792;&#65039;</span></div>
+        <div class="cap c1"><div class="pred bad">Prediction: Lane 1 wins</div></div>
+        <div class="cap c2"><div class="pred bad">Lane 1 trips at 90 m. Prediction: Lane 1 wins (&hellip;)</div></div>
+        <div class="cap c3"><div class="pred bad">Result: Lane 2 wins</div><span class="stamp bad">WRONG CALL</span></div>
+      </div>
+      <div class="pane"><div class="lab ok">With PIT</div>
+        <div class="track"><div class="finish"></div><span class="ln">Lane 1</span><span class="run l1 R1">&#127939;</span><span class="ln2">Lane 2</span><span class="run l2 R2">&#127939;&zwj;&#9792;&#65039;</span></div>
+        <div class="cap c1"><div class="pred hold">Not yet. Run through the line.</div></div>
+        <div class="cap c2"><div class="pred hold">90 m. Still running. Hold.</div></div>
+        <div class="cap c3"><div class="pred ok">Result: Lane 1 wins</div><span class="stamp ok">RIGHT</span></div>
+      </div>
+    </div>
+  </section>
 
 <!-- OWN-DATA START -->
 <style id="owndata-css">
-  .od-block {
-    --od-bg: #ffffff; --od-fg: #111111; --od-muted: #555555;
-    --od-border: #cccccc; --od-box: #f6f6f6; --od-accent: #0a5f38;
-    --od-accent-fg: #ffffff; --od-fail: #a30000; --od-link: #0a4f9e;
-    box-sizing: border-box;
-    max-width: 640px; margin: 0 auto 28px auto; padding: 16px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    font-size: 16px; line-height: 1.5; color: var(--od-fg); background: var(--od-bg);
-    border: 1px solid var(--od-border); border-radius: 10px;
-  }
-  @media (prefers-color-scheme: dark) {
-    .od-block {
-      --od-bg: #111111; --od-fg: #eeeeee; --od-muted: #aaaaaa;
-      --od-border: #444444; --od-box: #1b1b1b; --od-accent: #6fd6a8;
-      --od-accent-fg: #0a2016; --od-fail: #ff8080; --od-link: #7fb4ff;
-    }
-  }
-  .od-block * { box-sizing: border-box; }
-  .od-h { margin: 0 0 4px 0; font-size: 1.1rem; }
-  .od-sub { margin: 0 0 12px 0; color: var(--od-muted); font-size: 0.88rem; }
   .od-drop {
-    position: relative; border: 2px dashed var(--od-border); border-radius: 10px;
-    padding: 22px 14px; text-align: center; min-height: 44px; background: var(--od-box);
+    position: relative; border: 1px solid var(--line); border-radius: 12px;
+    padding: 22px 16px; text-align: center; min-height: 44px; background: var(--bg);
+    font-size: 16px; font-weight: 600; color: var(--fg);
   }
-  .od-drop.od-drag { border-color: var(--od-accent); }
-  .od-drop-text { pointer-events: none; color: var(--od-fg); }
-  .od-drop-text small { display: block; margin-top: 4px; color: var(--od-muted); }
+  .od-drop.od-drag { border-color: var(--ok); }
+  .od-drop-text { pointer-events: none; }
   .od-file-input {
     position: absolute; inset: 0; width: 100%; height: 100%;
     opacity: 0; cursor: pointer; -webkit-tap-highlight-color: transparent;
   }
-  .od-row { display: flex; align-items: center; justify-content: space-between;
-    flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-  .od-sample-link { color: var(--od-link); font-size: 0.88rem; text-decoration: underline;
+  .od-sample-line { margin-top: 4px; }
+  .od-sample-link { color: var(--link); font-size: 0.88rem; text-decoration: underline;
     min-height: 44px; display: inline-flex; align-items: center; }
-  .od-privacy { font-size: 0.78rem; color: var(--od-muted); margin-top: 6px; }
-  .od-progress { margin-top: 12px; font-size: 0.9rem; color: var(--od-muted); display: none; }
-  .od-progress[data-active="1"] { display: block; }
-  .od-error { margin-top: 12px; font-size: 0.9rem; color: var(--od-fail); display: none; }
+  .od-error { margin-top: 12px; font-size: 0.9rem; color: var(--bad); display: none; }
   .od-error[data-active="1"] { display: block; }
+  .od-progress { margin-top: 12px; font-size: 0.9rem; color: var(--mut); display: none; }
+  .od-progress[data-active="1"] { display: block; }
   .od-mapper { margin-top: 14px; display: none; }
   .od-mapper[data-active="1"] { display: block; }
   .od-mapper-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin: 10px 0; }
-  .od-mapper-grid label { font-size: 0.82rem; color: var(--od-muted); display: block; margin-bottom: 2px; }
+  .od-mapper-grid label { font-size: 0.82rem; color: var(--mut); display: block; margin-bottom: 2px; }
   .od-mapper-grid select {
     width: 100%; min-height: 44px; padding: 6px 8px; font-size: 0.95rem;
-    border: 1px solid var(--od-border); border-radius: 6px; background: var(--od-bg); color: var(--od-fg);
+    border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg);
   }
   .od-btn {
     display: inline-block; min-height: 44px; padding: 10px 18px; font-size: 0.95rem;
-    font-weight: 600; border: none; border-radius: 8px; background: var(--od-accent);
-    color: var(--od-accent-fg); cursor: pointer;
+    font-weight: 600; border: none; border-radius: 8px; background: var(--ok);
+    color: #ffffff; cursor: pointer;
   }
   .od-card {
-    margin-top: 14px; border: 1px solid var(--od-border); border-radius: 10px;
-    padding: 14px 16px; background: var(--od-box); display: none;
+    margin-top: 14px; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; background: var(--bg); display: none;
   }
   .od-card[data-active="1"] { display: block; }
   .od-card h4 { margin: 0 0 8px 0; font-size: 1rem; }
   .od-kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; font-size: 0.88rem; }
-  .od-kv .k { color: var(--od-muted); }
+  .od-kv .k { color: var(--mut); }
   .od-sentence { margin-top: 10px; font-size: 0.95rem; }
-  .od-details summary { cursor: pointer; font-size: 0.85rem; color: var(--od-link); margin-top: 10px; min-height: 44px; display: list-item; }
+  .od-details summary { cursor: pointer; font-size: 0.85rem; color: var(--link); margin-top: 10px; min-height: 44px; display: list-item; }
   .od-receipt { white-space: pre-wrap; word-break: break-word; font-family: ui-monospace, Consolas, monospace;
-    font-size: 0.72rem; background: var(--od-bg); border: 1px solid var(--od-border); border-radius: 6px;
+    font-size: 0.72rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
     padding: 8px; margin-top: 8px; }
-  .od-cols { font-size: 0.82rem; border-collapse: collapse; margin: 0 0 10px 0; }
-  .od-cols td { padding: 2px 10px 2px 0; color: var(--od-muted); vertical-align: top; }
-  .od-cols td:first-child { color: var(--od-fg); white-space: nowrap; }
-  .od-cols code, .od-sub code { color: var(--od-fg); }
 </style>
 
-<div class="od-block" id="odBlock">
-  <h2 class="od-h">Check your own signal</h2>
-  <p class="od-sub" style="margin-bottom:10px">Drop a CSV with four columns:</p>
-  <table class="od-cols">
-    <tr><td><code>period</code></td><td>the time bucket, e.g. 2026-08</td></tr>
-    <tr><td><code>entity</code></td><td>who or what the row is about: asset, user, store</td></tr>
-    <tr><td><code>value</code></td><td>the number for that entity in that period</td></tr>
-    <tr><td><code>arrival</code></td><td>the date that row became available to you</td></tr>
-  </table>
-  <p class="od-sub">Example row: <code>2026-08, AAPL, 0.42, 2026-08-14</code>. Other column names are fine; you will be asked to match them.</p>
+<div class="card upload-card" id="odBlock">
+  <div class="upload-title">Check your own signal</div>
 
   <div class="od-drop" id="odDrop">
     <input type="file" accept=".csv" id="odFile" class="od-file-input" aria-label="Choose a CSV file">
-    <div class="od-drop-text">
-      <strong>Drop the CSV here</strong>
-      <small>or tap to choose</small>
-    </div>
+    <div class="od-drop-text">Drop a CSV here, or tap to choose</div>
   </div>
 
-  <div class="od-row" style="justify-content:center">
-    <span class="od-sub" style="margin:0">No file handy?
-      <a href="#" id="odSampleLink" class="od-sample-link" download="sample_quickcheck.csv">Download a sample CSV</a>
-      to see the verdict format.</span>
-  </div>
-  <p class="od-privacy">You get back: susceptible or not, and how complete the data must be before the signal is
-    safe to use. 30 seconds. Stays on your phone. Only the verdict is reported.</p>
+  <p class="t" style="margin:14px 0 6px">Your file should look like this (other column names are fine):</p>
+  <table class="ex">
+    <tr><th>period</th><th>entity</th><th>value</th><th>arrival</th></tr>
+    <tr><td>2026-08</td><td>AAPL</td><td>0.42</td><td>2026-08-14</td></tr>
+    <tr><td>2026-08</td><td>MSFT</td><td>0.31</td><td>2026-08-20</td></tr>
+    <tr><td>2026-09</td><td>AAPL</td><td>0.40</td><td>2026-09-12</td></tr>
+  </table>
+  <p class="t">You get back: susceptible or not, and how complete the data must be before it is safe to use.</p>
+  <p class="t od-sample-line"><a href="#" id="odSampleLink" class="od-sample-link" download="sample_quickcheck.csv">Download a sample CSV</a></p>
 
   <div class="od-progress" id="odProgress"></div>
   <div class="od-error" id="odError"></div>
 
   <div class="od-mapper" id="odMapper">
-    <p class="od-sub">We could not tell which column is which. Match them below.</p>
+    <p class="t">We could not tell which column is which. Match them below.</p>
     <div class="od-mapper-grid" id="odMapperGrid"></div>
     <button type="button" class="od-btn" id="odMapperRun">Run the check</button>
   </div>
@@ -730,9 +785,9 @@ json.dumps(result)
       <span class="ok" aria-hidden="true">&#10003;</span>
       <div>
         <b>It just checked itself on this page.</b>
-        <span class="t" id="stripSummary">Release verified against PyPI &middot; 8 of 8 checks pass &middot; sample screen held a one-third-complete result &middot; live notebook running &middot; just now</span>
         <details>
-          <summary>Show details and what this is for</summary>
+          <summary>Show details</summary>
+          <p class="t" id="stripSummary" style="margin:8px 0 0">Release verified against PyPI &middot; 8 of 8 checks pass &middot; sample screen held a one-third-complete result &middot; live notebook running &middot; just now</p>
           <pre class="box" id="stage1Receipt">Verifying the release against PyPI...</pre>
           <p class="t" id="lineBinder" style="margin:8px 0 0">Starting a live notebook on mybinder.org...</p>
 
@@ -774,8 +829,8 @@ json.dumps(result)
       <a href="https://mybinder.org/v2/gist/MaxWellApexLab/fb6258ac4f36db0da2ee31da6221ba5c/HEAD?urlpath=voila%2Frender%2Fquickstart_pit_release_gate.ipynb" target="_blank" rel="noopener" id="footerBinderLink">Live notebook</a>
     </p>
     <p class="disclosure" id="disclosure">
-      This page reports a visit, basic device information (time zone, browser, screen size) and the
-      receipt text to its author. It sends nothing else.
+      This page reports a visit, basic device information, which sections you scrolled to, and the
+      receipt text to its author.
     </p>
   </footer>
 </div>
@@ -975,6 +1030,60 @@ json.dumps(result)
     var stage1T1 = performance.now();
     console.log('Stage 1 time: ' + ((stage1T1 - stage1T0) / 1000).toFixed(2) + 's');
   });
+
+  // ---------------------------------------------------------------
+  // SERVED-DISH: each section is a dish. The first time a section
+  // scrolls 50% into view, POST WORKER_BASE + '/serve' (the Worker writes
+  // a "receipt: <section>" row with that scenario's precomputed numbers,
+  // ts, country, ua) and mirror the same title to ntfy from here. So one
+  // link open yields the page-visit receipt plus one receipt per section
+  // scrolled to.
+  // ---------------------------------------------------------------
+  var SERVE_BODY = {
+    election: 'Election night: naive calls it at 35% counted (A 58% / B 42%) and holds that call through ' +
+      '60% and 85% counted; final count is A 48% / B 52% (B wins) -- naive was wrong. The gate holds every ' +
+      'call until 100% counted, so it calls B and is right.',
+    athlete: 'The last ten meters: naive calls the race for the leader, Lane 1, while it is still ahead; ' +
+      'Lane 1 trips at 90 m and never reaches the line, so Lane 2 wins and naive was wrong. The gate holds ' +
+      'its call until a runner actually crosses the line, so it calls Lane 1 -- the pane where the runner ' +
+      'runs through -- and is right.'
+  };
+  var served = {};
+  function serveSection(section) {
+    if (served[section]) return;
+    served[section] = true;
+    var title = 'receipt: ' + section;
+    var body = SERVE_BODY[section] || section;
+    if (REPORTING_ON) {
+      try {
+        fetch(REPORT_URL, { method: 'POST', body: body, keepalive: true,
+          headers: { 'Title': title, 'Tags': 'clipboard' } }).catch(function () {});
+      } catch (e) {}
+    }
+    if (WORKER_BASE) {
+      try {
+        fetch(WORKER_BASE + '/serve', { method: 'POST', keepalive: true,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ section: section }) }).catch(function () {});
+      } catch (e) {}
+    }
+  }
+
+  function watchSection(id, section) {
+    var target = document.getElementById(id);
+    if (!target || typeof IntersectionObserver !== 'function') return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+          serveSection(section);
+          io.disconnect();
+        }
+      });
+    }, { threshold: [0.5] });
+    io.observe(target);
+  }
+  watchSection('sectionElection', 'election');
+  watchSection('sectionAthlete', 'athlete');
 
 })();
 </script>
