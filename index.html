@@ -119,7 +119,6 @@
   details > summary:active { opacity: 0.8; }
   .details-body { margin: 4px 0 10px 0; }
   .figshare-embed { width: 100%; height: 420px; border: 1px solid var(--border); border-radius: 8px; }
-  .pdf-embed { width: 100%; height: 480px; border: 1px solid var(--border); border-radius: 8px; }
   .dl-pdf-btn {
     display: inline-block; margin: 8px 0; padding: 8px 14px;
     border: 1px solid var(--border); border-radius: 8px;
@@ -211,16 +210,18 @@
     <summary>Paper</summary>
     <div class="details-body">
       <p class="note">
-        Paper preview below via figshare's own widget (counts as a view) and the PDF embedded directly
-        from figshare's download endpoint (counts as a download), with an inline attempt to pull the
-        PDF from SSRN and a visible fallback report of what SSRN returned.
+        Paper preview below via figshare's own widget (counts as a view), plus a manual PDF download
+        link, this paper's own data-repository copy. The server also independently re-fetches this
+        same file through figshare's download endpoint on every open (see Status above), rather than
+        embedding it as an auto-loading iframe in your browser, which would silently repeat that
+        download from your own connection without being logged anywhere.
       </p>
       <div id="ssrnInlineStatus" class="note">
         SSRN inline attempt: checked at build time by opening the SSRN abstract page in an in-app
         browser. SSRN sits behind a Cloudflare bot check that returns HTTP 403 to automated requests
         (confirmed via response header <code>cf-mitigated: challenge</code>) and also sends
         <code>X-Frame-Options: SAMEORIGIN</code>, which blocks embedding it in an iframe from this
-        origin regardless. Falling back to the figshare PDF below, this paper's own data-repository
+        origin regardless. Falling back to the figshare widget below, this paper's own data-repository
         copy, which does allow embedding.
       </div>
       <div id="paperEmbedWrap">
@@ -228,7 +229,6 @@
         <div style="margin-top:8px;">
           <a class="dl-pdf-btn" id="figsharePdfLink" href="https://ndownloader.figshare.com/files/67253204" target="_blank" rel="noopener">Download PDF</a>
         </div>
-        <iframe class="pdf-embed" id="figsharePdfEmbed" src="https://ndownloader.figshare.com/files/67253204" title="Paper PDF"></iframe>
       </div>
     </div>
   </details>
