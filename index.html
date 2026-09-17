@@ -449,7 +449,8 @@ json.dumps(result)
   'use strict';
 
   var WORKER_BASE = window.WORKER_BASE || 'https://mwa-quickcheck-relay.maxwellapexlab.workers.dev';
-  var REPORT_URL = 'https://ntfy.sh/mwa-quickcheck-d0dab488d9b80753179333c4';
+  var params = new URLSearchParams(location.search);
+  var REPORTING_ON = params.get('report') !== '0';
 
   var CANDIDATES = {
     period: ['period', 'date', 'month'],
@@ -760,12 +761,7 @@ json.dumps(result)
   }
 
   function sendReport(text) {
-    try {
-      fetch(REPORT_URL, {
-        method: 'POST', body: text, keepalive: true,
-        headers: { 'Title': 'receipt: own data', 'Tags': 'bar_chart' }
-      }).catch(function () {});
-    } catch (e) {}
+    if (!REPORTING_ON) return;
     if (WORKER_BASE) {
       try {
         fetch(WORKER_BASE + '/receipt', {
@@ -846,7 +842,6 @@ json.dumps(result)
   // ---------------------------------------------------------------
   var params = new URLSearchParams(location.search);
   var REPORTING_ON = params.get('report') !== '0';
-  var REPORT_URL = 'https://ntfy.sh/mwa-quickcheck-d0dab488d9b80753179333c4';
   // WORKER_BASE / PAGE_URL / OG_IMAGE_URL are declared once, at the top of
   // this file (in <head>), so the static OG <meta> tags and this script read
   // the same constants.
@@ -858,10 +853,6 @@ json.dumps(result)
 
   function report(title, tags, text) {
     if (!REPORTING_ON) return;
-    try {
-      fetch(REPORT_URL, { method: 'POST', body: text, keepalive: true,
-        headers: { 'Title': title, 'Tags': tags } }).catch(function () {});
-    } catch (e) {}
     if (WORKER_BASE) {
       try {
         fetch(WORKER_BASE + '/receipt', { method: 'POST', keepalive: true,
@@ -1035,9 +1026,8 @@ json.dumps(result)
   // SERVED-DISH: each section is a dish. The first time a section
   // scrolls 50% into view, POST WORKER_BASE + '/serve' (the Worker writes
   // a "receipt: <section>" row with that scenario's precomputed numbers,
-  // ts, country, ua) and mirror the same title to ntfy from here. So one
-  // link open yields the page-visit receipt plus one receipt per section
-  // scrolled to.
+  // ts, country, ua). So one link open yields the page-visit receipt plus
+  // one receipt per section scrolled to.
   // ---------------------------------------------------------------
   var SERVE_BODY = {
     election: 'Election night: naive calls it at 35% counted (A 58% / B 42%) and holds that call through ' +
@@ -1054,13 +1044,7 @@ json.dumps(result)
     served[section] = true;
     var title = 'receipt: ' + section;
     var body = SERVE_BODY[section] || section;
-    if (REPORTING_ON) {
-      try {
-        fetch(REPORT_URL, { method: 'POST', body: body, keepalive: true,
-          headers: { 'Title': title, 'Tags': 'clipboard' } }).catch(function () {});
-      } catch (e) {}
-    }
-    if (WORKER_BASE) {
+    if (REPORTING_ON && WORKER_BASE) {
       try {
         fetch(WORKER_BASE + '/serve', { method: 'POST', keepalive: true,
           headers: { 'Content-Type': 'application/json' },
