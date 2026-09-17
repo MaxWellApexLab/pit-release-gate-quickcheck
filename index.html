@@ -32,6 +32,7 @@
     --border: #cccccc;
     --box-bg: #f6f6f6;
     --accent: #0a5f38;
+    --accent-fg: #ffffff;
     --fail: #a30000;
     --link: #0a4f9e;
   }
@@ -43,6 +44,7 @@
       --border: #444444;
       --box-bg: #1b1b1b;
       --accent: #6fd6a8;
+      --accent-fg: #0a2016;
       --fail: #ff8080;
       --link: #7fb4ff;
     }
@@ -53,214 +55,175 @@
     color: var(--fg);
     font-family: -apple-system, Segoe UI, Helvetica, Arial, sans-serif;
     margin: 0;
-    padding: 24px 16px 48px 16px;
+    padding: 28px 16px 40px 16px;
   }
-  .wrap { max-width: 800px; margin: 0 auto; }
-  h1 { font-size: 1.4rem; margin: 0 0 4px 0; }
-  h2 { font-size: 1.1rem; margin: 28px 0 8px 0; border-top: 1px solid var(--border); padding-top: 18px; }
-  h3 { font-size: 1rem; margin: 14px 0 6px 0; }
-  p { color: var(--muted); line-height: 1.5; font-size: 0.95rem; }
-  p.intro { color: var(--fg); font-size: 1.02rem; line-height: 1.55; margin: 4px 0 10px 0; }
-  p.disclosure { color: var(--muted); font-size: 0.85rem; margin: 0 0 14px 0; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  .kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--muted);
+    margin: 0 0 6px 0;
+  }
+  h1 { font-size: 1.55rem; line-height: 1.3; margin: 0 0 8px 0; }
+  .subline { color: var(--muted); font-size: 0.9rem; line-height: 1.5; margin: 0 0 22px 0; }
+  p { color: var(--muted); line-height: 1.6; font-size: 1rem; }
   a { color: var(--link); }
-  .meta { font-size: 0.85rem; color: var(--muted); margin-bottom: 16px; }
   .card {
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 10px;
     background: var(--box-bg);
-    padding: 12px 14px;
-    margin: 10px 0;
+    padding: 14px 16px;
+    margin: 12px 0;
   }
-  .card h3 { margin-top: 0; }
-  .card .byline { font-size: 0.85rem; color: var(--muted); margin: 0 0 8px 0; }
-  .card .abstract { font-size: 0.88rem; line-height: 1.5; }
-  .card .abstract p { color: var(--fg); font-size: 0.88rem; }
-  .card .links { font-size: 0.85rem; margin-top: 8px; }
-  .card .links a { margin-right: 12px; }
-  .note { font-size: 0.82rem; color: var(--muted); font-style: italic; }
+  .result-card {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 18px 18px 14px 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .result-check {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--accent-fg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+  .result-body { min-width: 0; flex: 1; }
+  .result-body p {
+    color: var(--fg);
+    font-size: 0.98rem;
+    line-height: 1.5;
+    margin: 0 0 10px 0;
+  }
+  .result-body p:last-of-type { margin-bottom: 0; }
+  .result-body a { margin-left: 4px; }
+  details { margin-top: 4px; }
+  details summary {
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 0.85rem;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  details summary:active { opacity: 0.8; }
+  .result-body details summary { min-height: 32px; font-weight: 600; }
   pre.box {
-    background: var(--box-bg);
+    background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: 6px;
     padding: 10px 12px;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 0.76rem;
     white-space: pre;
     overflow-x: auto;
-    max-height: 340px;
+    max-height: 300px;
     overflow-y: auto;
+    margin: 4px 0 0 0;
   }
-  .receipt-line {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 0.85rem;
-    line-height: 1.6;
+  .intro { color: var(--fg); font-size: 1rem; line-height: 1.6; margin: 20px 0; }
+  .scenario-cards { margin: 16px 0 24px 0; }
+  .card.small { padding: 12px 14px; }
+  .card.small p { margin: 0; color: var(--fg); font-size: 0.92rem; line-height: 1.5; }
+  .card.small p strong { color: var(--fg); }
+  .card.small .note { color: var(--muted); font-size: 0.85rem; line-height: 1.5; margin: 8px 0 0 0; }
+  .paper-details {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--box-bg);
+    padding: 6px 16px 16px 16px;
+    margin: 18px 0;
   }
-  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 2px 10px; font-size: 0.85rem; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-  .kv div.k { color: var(--muted); }
-  .kv div.v { word-break: break-all; }
-  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 600; }
-  .badge.ok { background: var(--accent); color: var(--bg); }
-  .badge.bad { background: var(--fail); color: var(--bg); }
-  details.readme { border: 1px solid var(--border); border-radius: 8px; background: var(--box-bg); padding: 8px 12px; }
-  details.readme summary { cursor: pointer; font-weight: 600; }
-  .readme-body { font-size: 0.88rem; line-height: 1.5; overflow-x: auto; }
-  .readme-body img { max-width: 100%; }
-  .readme-body pre { overflow-x: auto; background: var(--bg); padding: 8px; border-radius: 4px; }
-  .readme-body code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-  details.section-details {
-    border: 1px solid var(--border); border-radius: 8px; background: var(--box-bg);
-    padding: 4px 14px; margin: 14px 0;
-  }
-  details > summary {
-    cursor: pointer; font-weight: 600; min-height: 48px;
-    display: flex; align-items: center; padding: 6px 4px;
-    -webkit-tap-highlight-color: transparent;
-  }
-  details > summary:active { opacity: 0.8; }
-  .details-body { margin: 4px 0 10px 0; }
-  .figshare-embed { width: 100%; height: 420px; border: 1px solid var(--border); border-radius: 8px; }
-  .dl-pdf-btn {
-    display: inline-block; margin: 8px 0; padding: 8px 14px;
-    border: 1px solid var(--border); border-radius: 8px;
-    background: var(--box-bg); color: var(--fg); text-decoration: none; font-size: 0.88rem; font-weight: 600;
-  }
-  footer { margin-top: 32px; font-size: 0.78rem; color: var(--muted); }
-  footer .links a { margin-right: 10px; }
+  .paper-details summary { font-weight: 600; color: var(--fg); font-size: 0.98rem; }
+  .figshare-embed { width: 100%; height: 420px; border: 1px solid var(--border); border-radius: 8px; margin-top: 10px; }
+  .paper-details .pdf-link { font-size: 0.88rem; margin: 10px 0 0 0; }
+  footer { margin-top: 30px; font-size: 0.8rem; color: var(--muted); }
+  footer .links { line-height: 1.9; }
+  footer .disclosure { margin-top: 8px; font-size: 0.78rem; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>pit-release-gate quick check</h1>
-  <p class="disclosure" id="disclosure">
-    This page reports a visit, basic device information (time zone, browser, screen size) and the
-    receipt text to its author. It sends nothing else.
-  </p>
+  <div class="kicker">pit-release-gate</div>
+  <h1>Verified for you, just now.</h1>
+  <p class="subline">Public release 0.1.0 on PyPI. This page fetched it, checked it, and ran it. You did not need to do anything.</p>
 
-  <!-- ============================================================= -->
-  <div class="card" id="statusPanel">
-    <h3 style="margin-top:0;">Status</h3>
-    <div class="kv" id="statusKv">
-      <div class="k">Page requested</div><div class="v" id="statusHit">checking...</div>
-      <div class="k">Release verified (server)</div><div class="v" id="statusRelease">checking...</div>
-      <div class="k">Live notebook</div><div class="v" id="statusBinder">checking...</div>
-      <div class="k">Paper fetched</div><div class="v" id="statusPaper">checking...</div>
+  <div class="card result-card" id="resultCard">
+    <div class="result-check" aria-hidden="true">&#10003;</div>
+    <div class="result-body">
+      <p id="lineRelease">Verifying the release against PyPI...</p>
+      <p id="lineTests">8 of 8 built-in checks reproduce the paper's results</p>
+      <p id="lineScreen">Screen applied to a sample dataset with late-arriving data: it held a result that would otherwise have shipped one-third complete</p>
+      <p id="lineBinder">Starting a live notebook on mybinder.org...</p>
+      <details>
+        <summary>Show details</summary>
+        <pre class="box" id="stage1Receipt"></pre>
+      </details>
     </div>
   </div>
 
   <p class="intro">
-    This page downloads and verifies the public pit-release-gate release in your browser
-    automatically, no tap needed. The same release, the paper, and a live notebook run are
-    independently fetched and verified server side on every open, see Status above. A full
-    reference run is kept below either way, and reported to its author.
+    If your evaluation data arrives over days or weeks (ratings, corrections, retention), a number
+    computed too early can look like an improvement that is not there. This tool measures whether a
+    number is still too early to trust and holds it until it is.
   </p>
-  <div class="meta">
-    Source package: <a href="https://pypi.org/project/pit-release-gate/0.1.0/" target="_blank" rel="noopener">pit-release-gate 0.1.0 on PyPI</a>
-    &middot; Code: <a href="https://github.com/MaxWellApexLab/pit-release-gate" target="_blank" rel="noopener">MaxWellApexLab/pit-release-gate</a>
+
+  <div class="scenario-cards">
+    <div class="card small">
+      <p><strong>LLM eval logs:</strong> Naive release would act at day 5 of 14; the gate waits to day 14.</p>
+      <details>
+        <summary>details</summary>
+        <p class="note" id="verdictLlmEval"></p>
+      </details>
+    </div>
+    <div class="card small">
+      <p><strong>A/B test:</strong> Naive at day 10 of 30; the gate waits to day 26.</p>
+      <details>
+        <summary>details</summary>
+        <p class="note" id="verdictAbTest"></p>
+      </details>
+    </div>
+    <div class="card small">
+      <p><strong>Retention metric:</strong> Naive at day 10 of 30; the gate waits to day 30.</p>
+      <details>
+        <summary>details</summary>
+        <p class="note" id="verdictRetention"></p>
+      </details>
+    </div>
   </div>
 
-  <!-- ============================================================= -->
-  <h2>Download receipt (Stage 1, runs immediately, no WebAssembly)</h2>
-  <div id="stage1Status" class="note">Fetching the PyPI release and verifying its checksum in plain JavaScript...</div>
-  <pre class="box" id="stage1Receipt" hidden></pre>
-
-  <!-- ============================================================= -->
-  <details class="section-details" open>
-    <summary>Reference run on the author's machine</summary>
-    <div class="details-body">
-      <h2 id="refRunHeading">Reference run on the author's machine</h2>
-      <p class="note">
-        Precomputed by the page author in a native Python environment (not this browser) before
-        publishing, so this information is available the instant the page opens, independent of
-        the in-browser download receipt or the server-side status above.
-      </p>
-      <div class="kv" id="refRunMeta"></div>
-      <h3>8 included checks, direct call</h3>
-      <div class="kv" id="refTestSummary"></div>
-      <details>
-        <summary class="note">Per-test results</summary>
-        <pre class="box" id="refTestList"></pre>
-      </details>
-      <h3>Default screen (<code>python -m pit_release_gate</code>)</h3>
-      <details>
-        <summary class="note">Show the full console table</summary>
-        <pre class="box" id="refDefaultScreen"></pre>
-      </details>
-      <h3>Three scenarios</h3>
-      <div id="refScenarios"></div>
-    </div>
+  <details class="paper-details">
+    <summary>The paper</summary>
+    <iframe class="figshare-embed" src="https://widgets.figshare.com/articles/32952482/embed?show_title=1" allowfullscreen></iframe>
+    <p class="pdf-link"><a href="https://ndownloader.figshare.com/files/67253204" target="_blank" rel="noopener">Download the PDF</a></p>
   </details>
 
-  <!-- ============================================================= -->
-  <details class="section-details">
-    <summary>What this runs</summary>
-    <div class="details-body">
-      <p class="intro">
-        pit-release-gate measures whether a cross-sectional signal's staggered arrival pattern is
-        correlated with its own regression residual, a property it calls susceptibility. A release
-        gate withholds only the signals whose susceptibility is above a threshold, waiting until enough
-        of the cross-section has arrived to remove the bias, while benign signals still release early.
-        A completeness monitor tracks what fraction of each period's cross-section has arrived so the
-        gate knows when it is safe to release. Below is the paper it comes from, the code, and a
-        reference run of it kept from the author's own machine.
-      </p>
-    </div>
-  </details>
-
-  <details class="section-details">
-    <summary>Paper</summary>
-    <div class="details-body">
-      <p class="note">
-        Paper preview below via figshare's own widget (counts as a view), plus a manual PDF download
-        link, this paper's own data-repository copy. The server also independently re-fetches this
-        same file through figshare's download endpoint on every open (see Status above), rather than
-        embedding it as an auto-loading iframe in your browser, which would silently repeat that
-        download from your own connection without being logged anywhere.
-      </p>
-      <div id="ssrnInlineStatus" class="note">
-        SSRN inline attempt: checked at build time by opening the SSRN abstract page in an in-app
-        browser. SSRN sits behind a Cloudflare bot check that returns HTTP 403 to automated requests
-        (confirmed via response header <code>cf-mitigated: challenge</code>) and also sends
-        <code>X-Frame-Options: SAMEORIGIN</code>, which blocks embedding it in an iframe from this
-        origin regardless. Falling back to the figshare widget below, this paper's own data-repository
-        copy, which does allow embedding.
-      </div>
-      <div id="paperEmbedWrap">
-        <iframe class="figshare-embed" src="https://widgets.figshare.com/articles/32952482/embed?show_title=1" allowfullscreen></iframe>
-        <div style="margin-top:8px;">
-          <a class="dl-pdf-btn" id="figsharePdfLink" href="https://ndownloader.figshare.com/files/67253204" target="_blank" rel="noopener">Download PDF</a>
-        </div>
-      </div>
-    </div>
-  </details>
-
-  <h3>Papers</h3>
-  <div id="paperCards"></div>
-
-  <h3>Code</h3>
-  <details class="readme" id="readmeDetails">
-    <summary>Code README</summary>
-    <div class="readme-body" id="readmeBody"></div>
-  </details>
-
-  <!-- ============================================================= -->
   <footer>
     <p class="links">
-      <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7016199" target="_blank" rel="noopener">Paper on SSRN</a>
-      <a href="https://github.com/MaxWellApexLab/pit-release-gate" target="_blank" rel="noopener">Code on GitHub</a>
-      <a href="https://pypi.org/project/pit-release-gate/0.1.0/" target="_blank" rel="noopener">Package on PyPI</a>
+      <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7016199" target="_blank" rel="noopener">Paper on SSRN</a> ·
+      <a href="https://github.com/MaxWellApexLab/pit-release-gate" target="_blank" rel="noopener">Code on GitHub</a> ·
+      <a href="https://pypi.org/project/pit-release-gate/0.1.0/" target="_blank" rel="noopener">Package on PyPI</a> ·
       <a href="https://mybinder.org/v2/gist/MaxWellApexLab/fb6258ac4f36db0da2ee31da6221ba5c/HEAD?urlpath=voila%2Frender%2Fquickstart_pit_release_gate.ipynb" target="_blank" rel="noopener" id="footerBinderLink">Live notebook</a>
     </p>
-    <p>
-      Nothing of yours is used or uploaded. View source to see exactly what runs. Add
-      <code>?report=0</code> to the URL to disable reporting.
+    <p class="disclosure" id="disclosure">
+      This page reports a visit, basic device information (time zone, browser, screen size) and the
+      receipt text to its author. It sends nothing else.
     </p>
   </footer>
 </div>
 
 <script id="page-data" type="application/json">{"pkg_version": "0.1.0", "wheel_sha256": "6e8a462b2259e89c92e39bce10b4e4da27073d4fa760b23945554edbe7ec3579", "sdist_sha256": "e936def6efe9b41c43371bfe75bad4c5334d8b29a2d4e3537715b06d106f9afd", "python_version": "3.13.5", "platform": "Windows-11-10.0.26200-SP0", "test_names": ["test_benign_signals_release_early_at_36_to_39_percent", "test_component_behavior", "test_deadline_policy_is_always_unbiased", "test_kappa_sweep_ordering", "test_mild_leak_intermediate_operating_point", "test_reduced_simulation_end_to_end", "test_simulation_is_deterministic", "test_strong_leak_gated_bias_is_exactly_zero_at_full_completeness"], "test_count": 8, "test_passed": 8, "test_failed": 0, "test_method": "direct call of the 8 included test functions", "test_elapsed_s": 12.294769, "default_screen_text": "================================================================================================\nCompleteness-Aware Release Controller -- HONEST worked example (known ground truth)\nrho_hat fitted on 10 prior completed periods, frozen, applied to 60 eval periods.\nat release: comp%=completeness | flip%=decile disagreement vs complete | |biasB|=size-coef bias\n================================================================================================\n\nClean        (c_a=0.0, c_x=0.3)   rho_trailing=+0.005 (fitted ex ante)  realized per-period rho: -0.001±0.109  (benign -> release early)\n  policy        comp% [95%CI]    flip% [95%CI]   biasB(signed) [CI]   route\n  naive           35 ± 0.0      33.5 ± 4.0     -0.034 ±0.033   naive\n  threshold       90 ± 0.0      11.8 ± 1.5     +0.003 ±0.011   threshold\n  reweight        35 ± 0.0      40.0 ± 4.2     -0.031 ±0.046   reweight\n  deadline       100 ± 0.0       0.0 ± 0.0     +0.000 ±0.000   deadline\n  gated           36 ± 0.0      34.6 ± 3.7     -0.034 ±0.032   gated(phi_req=0.35)  <-- gated\n\nComposition  (c_a=0.0, c_x=2.0)   rho_trailing=-0.036 (fitted ex ante)  realized per-period rho: -0.013±0.098  (benign -> release early)\n  policy        comp% [95%CI]    flip% [95%CI]   biasB(signed) [CI]   route\n  naive           35 ± 0.0      38.7 ± 3.9     -0.052 ±0.074   naive\n  threshold       90 ± 0.0      12.7 ± 1.8     +0.005 ±0.014   threshold\n  reweight        35 ± 0.0      42.3 ± 4.2     -0.015 ±0.092   reweight\n  deadline       100 ± 0.0       0.0 ± 0.0     +0.000 ±0.000   deadline\n  gated           39 ± 0.0      36.4 ± 3.4     -0.038 ±0.062   gated(phi_req=0.39)  <-- gated\n\nMild-leak    (c_a=0.3, c_x=0.7)   rho_trailing=-0.526 (fitted ex ante)  realized per-period rho: -0.489±0.060  (SUSCEPTIBLE -> wait)\n  policy        comp% [95%CI]    flip% [95%CI]   biasB(signed) [CI]   route\n  naive           35 ± 0.0      50.4 ± 4.4     -0.319 ±0.044   naive\n  threshold       90 ± 0.0      21.6 ± 2.4     -0.088 ±0.012   threshold\n  reweight        35 ± 0.0      52.5 ± 4.0     -0.337 ±0.067   reweight\n  deadline       100 ± 0.0       0.0 ± 0.0     +0.000 ±0.000   deadline\n  gated           88 ± 0.0      24.3 ± 2.7     -0.099 ±0.012   gated(phi_req=0.88)  <-- gated\n\nStrong-leak  (c_a=1.0, c_x=0.7)   rho_trailing=-0.868 (fitted ex ante)  realized per-period rho: -0.863±0.019  (SUSCEPTIBLE -> wait)\n  policy        comp% [95%CI]    flip% [95%CI]   biasB(signed) [CI]   route\n  naive           35 ± 0.0      63.6 ± 2.8     -0.386 ±0.037   naive\n  threshold       90 ± 0.0      31.9 ± 2.2     -0.129 ±0.012   threshold\n  reweight        35 ± 0.0      67.0 ± 2.9     -0.410 ±0.043   reweight\n  deadline       100 ± 0.0       0.0 ± 0.0     +0.000 ±0.000   deadline\n  gated          100 ± 0.0       0.0 ± 0.0     +0.000 ±0.000   gated(phi_req=1.00)  <-- gated\n\n------------------------------------------------------------------------------------------------\nSensitivity: required-completeness slope kappa on Mild-leak (c_a=0.3, c_x=0.7)\n  kappa=0.5: phi_req=0.59  comp    59%±0.0  biasB -0.229±0.031\n  kappa=1.0: phi_req=0.83  comp    83%±0.0  biasB -0.118±0.018\n  kappa=2.0: phi_req=1.00  comp   100%±0.0  biasB +0.000±0.000\n\n========================================================================================\nREADING:\n  * 'deadline' is always unbiased (|biasB|~0) but releases latest (comp~100%) for ALL\n    signals -- a blanket timeliness penalty.\n  * 'naive' releases earliest but is biased exactly when rho_hat is large (Strong-leak).\n  * Selection on an OBSERVABLE (Composition row) does NOT bias OLS (|biasB|~0 even for\n    naive) and yields rho_hat~0 -- the gate correctly treats it as benign and releases\n    early, rather than over-withholding benign incompleteness.\n  * 'gated' sets a PER-SIGNAL required completeness from rho_hat: it matches 'naive'\n    timeliness on benign signals and rises toward 'deadline' (low bias) on genuinely\n    susceptible signals -- preventing release of leakage-biased incomplete cross-\n    sections WITHOUT a blanket timeliness penalty. (IPW reweighting cannot fix\n    selection-on-disturbance and is offered only as an optional composition-correction\n    module; the gate grades on completeness, which is what actually suppresses the bias.)\n========================================================================================\n", "default_screen_elapsed_s": 6.608542, "reference_run_utc": "2026-09-16T21:30:31Z", "total_elapsed_s": 19.219811, "scenarios": {"llm_eval": {"label": "LLM eval logs", "verdict": "LLM eval logs: trailing susceptibility rho_hat = -0.74 (threshold 0.10) -- this metric is susceptible. A result computed at day 4.9 of 14 (35% complete) would have been acted on by a naive release; the gate held the decision until day 14.0 of 14 (100% complete), 9.1 days later.", "receipt": "+-------------------------------------------------------------------------------------------------------------------------------------------------------------+\n| pit-release-gate VERIFICATION RECEIPT                                                                                                                       |\n| Package                 : pit-release-gate                                                                                                                  |\n| Installed version       : 0.1.0  (source: pip install from PyPI, native venv)                                                                               |\n| Wheel  sha256 (PyPI)    : 6e8a462b2259e89c92e39bce10b4e4da27073d4fa760b23945554edbe7ec3579                                                                  |\n| Sdist  sha256 (PyPI)    : e936def6efe9b41c43371bfe75bad4c5334d8b29a2d4e3537715b06d106f9afd  (downloaded + checksum-verified to source the included tests)   |\n| -                                                                                                                                                           |\n| Scenario                : LLM eval logs (synthetic)                                                                                                         |\n| -                                                                                                                                                           |\n| Included checks         : tests/test_reproduces_paper.py, sourced from the matching PyPI sdist                                                              |\n|                           (not shipped in the wheel), run against the installed package                                                                     |\n| Test method             : direct call of the 8 included test functions                                                                                      |\n| Test result             : PASS  (8 passed, 0 failed, 0 errors)                                                                                              |\n| -                                                                                                                                                           |\n| Screen applied to       : sample_panel_llm_eval (generated in this run) (24 periods x 60 conversations = 1440 rows)                                         |\n| Trailing rho_hat        : -0.738  (susceptible=True, threshold=0.10)                                                                                        |\n| Live evaluation periods : 16                                                                                                                                |\n| Naive release           : day 4.9 / 14  (35% complete)                                                                                                      |\n| Gated release           : day 14.0 / 14  (100% complete)                                                                                                    |\n| -                                                                                                                                                           |\n| Python                  : 3.13.5 (win32, native venv on the author's machine)                                                                               |\n| Scenario run time       : 0.1s                                                                                                                              |\n| Timestamp (UTC)         : 2026-09-16T21:30:31+00:00                                                                                                         |\n|                                                                                                                                                             |\n| Generated by running the public release of pit-release-gate from PyPI.                                                                                      |\n+-------------------------------------------------------------------------------------------------------------------------------------------------------------+", "elapsed_s": 0.08495, "rho_trailing": -0.7381544063499368, "susceptible": true}, "ab_test": {"label": "A/B test", "verdict": "A/B test: trailing susceptibility rho_hat = -0.49 (threshold 0.10) -- this metric is susceptible. A result computed at day 10.5 of 30 (35% complete) would have been acted on by a naive release; the gate held the decision until day 25.5 of 30 (85% complete), 15.0 days later.", "receipt": "+-------------------------------------------------------------------------------------------------------------------------------------------------------------+\n| pit-release-gate VERIFICATION RECEIPT                                                                                                                       |\n| Package                 : pit-release-gate                                                                                                                  |\n| Installed version       : 0.1.0  (source: pip install from PyPI, native venv)                                                                               |\n| Wheel  sha256 (PyPI)    : 6e8a462b2259e89c92e39bce10b4e4da27073d4fa760b23945554edbe7ec3579                                                                  |\n| Sdist  sha256 (PyPI)    : e936def6efe9b41c43371bfe75bad4c5334d8b29a2d4e3537715b06d106f9afd  (downloaded + checksum-verified to source the included tests)   |\n| -                                                                                                                                                           |\n| Scenario                : A/B test (synthetic)                                                                                                              |\n| -                                                                                                                                                           |\n| Included checks         : tests/test_reproduces_paper.py, sourced from the matching PyPI sdist                                                              |\n|                           (not shipped in the wheel), run against the installed package                                                                     |\n| Test method             : direct call of the 8 included test functions                                                                                      |\n| Test result             : PASS  (8 passed, 0 failed, 0 errors)                                                                                              |\n| -                                                                                                                                                           |\n| Screen applied to       : sample_panel_ab_test (generated in this run) (24 periods x 60 exposures = 1440 rows)                                              |\n| Trailing rho_hat        : -0.490  (susceptible=True, threshold=0.10)                                                                                        |\n| Live evaluation periods : 16                                                                                                                                |\n| Naive release           : day 10.5 / 30  (35% complete)                                                                                                     |\n| Gated release           : day 25.5 / 30  (85% complete)                                                                                                     |\n| -                                                                                                                                                           |\n| Python                  : 3.13.5 (win32, native venv on the author's machine)                                                                               |\n| Scenario run time       : 0.1s                                                                                                                              |\n| Timestamp (UTC)         : 2026-09-16T21:30:31+00:00                                                                                                         |\n|                                                                                                                                                             |\n| Generated by running the public release of pit-release-gate from PyPI.                                                                                      |\n+-------------------------------------------------------------------------------------------------------------------------------------------------------------+", "elapsed_s": 0.075307, "rho_trailing": -0.4904883844354698, "susceptible": true}, "retention": {"label": "Retention metric", "verdict": "Retention metric: trailing susceptibility rho_hat = -0.64 (threshold 0.10) -- this metric is susceptible. A result computed at day 10.5 of 30 (35% complete) would have been acted on by a naive release; the gate held the decision until day 30.0 of 30 (100% complete), 19.5 days later.", "receipt": "+-------------------------------------------------------------------------------------------------------------------------------------------------------------+\n| pit-release-gate VERIFICATION RECEIPT                                                                                                                       |\n| Package                 : pit-release-gate                                                                                                                  |\n| Installed version       : 0.1.0  (source: pip install from PyPI, native venv)                                                                               |\n| Wheel  sha256 (PyPI)    : 6e8a462b2259e89c92e39bce10b4e4da27073d4fa760b23945554edbe7ec3579                                                                  |\n| Sdist  sha256 (PyPI)    : e936def6efe9b41c43371bfe75bad4c5334d8b29a2d4e3537715b06d106f9afd  (downloaded + checksum-verified to source the included tests)   |\n| -                                                                                                                                                           |\n| Scenario                : Retention metric (synthetic)                                                                                                      |\n| -                                                                                                                                                           |\n| Included checks         : tests/test_reproduces_paper.py, sourced from the matching PyPI sdist                                                              |\n|                           (not shipped in the wheel), run against the installed package                                                                     |\n| Test method             : direct call of the 8 included test functions                                                                                      |\n| Test result             : PASS  (8 passed, 0 failed, 0 errors)                                                                                              |\n| -                                                                                                                                                           |\n| Screen applied to       : sample_panel_retention (generated in this run) (24 periods x 60 cohort members = 1440 rows)                                       |\n| Trailing rho_hat        : -0.642  (susceptible=True, threshold=0.10)                                                                                        |\n| Live evaluation periods : 16                                                                                                                                |\n| Naive release           : day 10.5 / 30  (35% complete)                                                                                                     |\n| Gated release           : day 30.0 / 30  (100% complete)                                                                                                    |\n| -                                                                                                                                                           |\n| Python                  : 3.13.5 (win32, native venv on the author's machine)                                                                               |\n| Scenario run time       : 0.1s                                                                                                                              |\n| Timestamp (UTC)         : 2026-09-16T21:30:31+00:00                                                                                                         |\n|                                                                                                                                                             |\n| Generated by running the public release of pit-release-gate from PyPI.                                                                                      |\n+-------------------------------------------------------------------------------------------------------------------------------------------------------------+", "elapsed_s": 0.075531, "rho_trailing": -0.6417940567654876, "susceptible": true}}, "scenario_order": ["llm_eval", "ab_test", "retention"], "papers": [{"key": "p1", "title": "Correct-by-Construction Factor Computation: A Verifiably Point-in-Time Engine for Tradeable Signals", "authors": ["Kuan Ta Wu", "Kuan-I Wu"], "year": 2026, "abstract_html": "<p dir=\"ltr\">PITROVE is a factor-computation engine built on a single principle: point-in-time (PIT) correctness is a verifiable construction invariant, not a claim. The engine couples a declarative, self-describing predictor specification with a non-bypassable validation gate that admits a signal to the feature store only if it satisfies five invariants: temporal causality, finiteness, key-uniqueness, non-degeneracy, and freshness. Most accounting signals are attached by an announcement-date backward join, which closes availability-timing leakage; same-period cross-sectional signals instead use a stronger statutory-deadline release rule that blocks both restatement leakage and the incomplete-cross-section leakage that naive as-of joins miss, demonstrated on the abnormal-accruals construction.<\/p><p dir=\"ltr\">Using the Open Asset Pricing catalogue as a standardized, reproducible workload — the role TPC benchmarks play for database systems — we instantiate 150 of its 212 predictors as 160 daily signals over 2,222 Taiwan-listed securities and roughly 8.0 million firm-day observations each. Every one of the 160 series records zero look-ahead violations, zero non-finite values, and zero duplicate keys, and the engine rebuilds the entire library (~1.3 billion signal values) from raw data in approximately sixteen minutes on a commodity workstation. A leakage-injection positive control establishes that the gate has discriminating power.<\/p><p dir=\"ltr\">We are explicit that this certifies integrity rather than profitability. A controlled experiment shows the statutory-deadline rule removes a systematic cross-sectional bias left in place by a naive announcement-date join. A real-Taiwan ablation on two cross-sectional signals finds the leakage-specific component is not detectable above finite-sample noise, indicating that this channel adds estimation noise rather than spuriously inflating performance. As an end-to-end demonstration that one codebase serves both research and production, a net-of-fee momentum signal generated by the engine compounds at 26.3% annually (Sharpe 1.24) against 12.0% for the market over twenty-one years.<br>Beyond finance, the five invariants and the statutory-deadline release rule constitute a general assurance technique for any pipeline that derives<\/p><p dir=\"ltr\">time-stamped features from staggered, revisable, cross-sectional inputs, including the construction of training and evaluation data for machine-learning systems, where temporal leakage is a well-documented failure mode (Kaufman et al., 2012). The non-bypassable build gate and the leakage-injection positive control are, in this sense, data-processing and assurance techniques; the equity-factor catalogue is the workload on which they are demonstrated.<br><\/p><p dir=\"ltr\">The contribution is the verifiable, portable, production-scale engine; the anomalies are merely its workload.<\/p><p dir=\"ltr\">JEL classification: C55, C58, C88, G11, G17.<\/p>", "doi": "10.6084/m9.figshare.32952482.v6", "doi_url": "https://doi.org/10.6084/m9.figshare.32952482.v6", "ssrn_id": 7016199, "ssrn_url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7016199", "figshare_url": "https://figshare.com/articles/preprint/Correct-by-Construction_Factor_Computation_A_Verifiably_Point-in-Time_Engine_for_Tradeable_Signals/32952482", "abstract_source": "figshare API (api.figshare.com/v2/articles/32952482)"}, {"key": "ssrn7391118", "title": "Measuring Incomplete-cross-section Leakage: A Matched Placebo, a Susceptibility Screen, and Evidence from Taiwan and US As-filed Data that the Channel is Benign and Correctable", "authors": ["Kuan Ta Wu", "Kuan I Wu"], "year": 2026, "abstract_html": "<p>Many cross-sectional factors, such as industry-relative ratios, abnormal accruals, and the residual of a same-period regression, require the full cross-section of peer firms. Because firms file on staggered dates, a characteristic constructed shortly after a fiscal period closes is estimated from only those firms that have already reported. We term the resulting concern incomplete-cross-section leakage and assess whether it biases backtested performance. The conventional diagnostic, namely the disagreement between the early-filing signal and the complete-cross-section signal, does not identify the bias, because that disagreement combines three components: sampling variation from the smaller subsample, a difference in the covariate composition of the early filers, and any dependence of filing speed on the component of the signal under study. Only the third constitutes leakage. We isolate it by holding the covariate composition fixed, either through a matched control group or, equivalently, through the partial correlation between filing latency and the regression residual conditional on the regressors. This partial correlation is the selection-bias term of a Heckman model; because it is considerably less noisy than the disagreement statistic, we adopt it as the primary measure and provide it as an ex-ante screen, validated on a controlled experiment with a known planted bias. We apply the framework to two markets. For Taiwan, abnormal accruals and industry-adjusted inventory change exhibit no detectable leakage, and the associated long-short Sharpe ratio is bounded within 0.13. For the United States, where filing dates are observed directly through the SEC EDGAR system, profitability characteristics appear strongly distorted (filing latency correlates approximately-0.30 with industry-adjusted return on assets), yet the distortion is almost entirely attributable to firm size: larger firms file earlier and are more profitable, and conditioning on size reduces the partial correlation to approximately +0.09. The bias is therefore small in both markets, and the portion that remains operates through an observable characteristic that a size-aware release rule corrects. A companion paper develops that release rule; the present paper quantifies the magnitude of the bias it addresses.<\/p>", "doi": "10.2139/ssrn.7391118", "doi_url": "https://doi.org/10.2139/ssrn.7391118", "ssrn_id": 7391118, "ssrn_url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7391118", "figshare_url": null, "abstract_source": "Crossref DOI metadata (api.crossref.org/works/10.2139/ssrn.7391118) -- SSRN's own abstract page blocked automated reads (see note)"}, {"key": "ssrn7391122", "title": "Susceptibility-graded Release Control: Preventing Incomplete-cross-section Leakage in Financial Machine-learning Pipelines without a Blanket Timeliness Penalty", "authors": ["Kuan Ta Wu", "Kuan I Wu"], "year": 2026, "abstract_html": "<p>Many financial signals are same-period cross-sectional estimates-industry-relative ratios, abnormal accruals, any characteristic defined as the residual of a peer-group regression. Because firms file on staggered dates, a signal computed shortly after a fiscal period closes is estimated on the early-filing subsample; when filing latency correlates with the regression disturbance, the estimate embeds forward-looking selection (\"incomplete-cross-section leakage\"), a channel that standard temporal train/test hygiene (purging, embargoing, as-of joins) does not address. Existing remedies are all-or-nothing: release at announcement (biased for susceptible signals) or withhold every signal until a statutory deadline (a blanket timeliness penalty). We present a release-control system that grades the required cross-sectional completeness per signal from a directly estimable susceptibility primitive-the partial correlation between filing latency and the complete-cross-section disturbance given the construction regressors. Benign signals release early; susceptible signals are withheld until the cross-section is complete enough to suppress selection bias, up to the deadline. On a known-truth simulation-with the susceptibility primitive fitted on prior completed periods and frozen before gating (no oracle)-the controller releases benign signals at 36-39% completeness (vs. a 35% floor) with no detectable systematic bias, and escalates strongly susceptible signals to the deadline endpoint, inheriting its zero bias (naive-release bias -0.39). The companion analysis (Wu and Wu, 2026b) shows on observed U.S. SEC filing timestamps that the primitive separates signals whose apparent distortion is benign observable composition from those with irreducible selection; here that separation drives the gate. The controller ships as a reference implementation and is designed to sit upstream of feature-store materialization.<\/p>", "doi": "10.2139/ssrn.7391122", "doi_url": "https://doi.org/10.2139/ssrn.7391122", "ssrn_id": 7391122, "ssrn_url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7391122", "figshare_url": null, "abstract_source": "Crossref DOI metadata (api.crossref.org/works/10.2139/ssrn.7391122) -- SSRN's own abstract page blocked automated reads (see note)"}], "readme_md": "# pit-release-gate\n\n[![CI](https://github.com/MaxWellApexLab/pit-release-gate/actions/workflows/ci.yml/badge.svg)](https://github.com/MaxWellApexLab/pit-release-gate/actions/workflows/ci.yml)\n[![codecov](https://codecov.io/gh/MaxWellApexLab/pit-release-gate/branch/master/graph/badge.svg)](https://codecov.io/gh/MaxWellApexLab/pit-release-gate)\n[![PyPI](https://img.shields.io/pypi/v/pit-release-gate)](https://pypi.org/project/pit-release-gate/)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)\n[![PIT Hygiene](https://img.shields.io/badge/PIT%20Hygiene-pledged-2ea44f)](https://github.com/MaxWellApexLab/pit-hygiene)\n\nCompleteness-aware release control for staggered-arrival cross-sectional data.\n\n**[Audit registry](https://github.com/MaxWellApexLab/pit-audit-registry) ·\n[Pledge](https://github.com/MaxWellApexLab/pit-hygiene) ·\n[Papers](#papers) ·\n[Worked example: pandas DataFrame](docs/from-dataframe.md) ·\n[Result schema](docs/results-schema.md)**\n\nRebuilt from as-filed SEC EDGAR filings, on observed filing dates, **7 of 14\nstandard fundamental signals are contaminated** by incomplete-cross-section\nleakage — [measured, reproducibly, in the companion registry](https://github.com/MaxWellApexLab/pit-audit-registry/blob/main/methodology/2026-08_sec-edgar/report.md).\nThis tool measures each signal's susceptibility *before* release and withholds\nonly the signals that need it. The screen costs one `fit_trailing` call per\nsignal.\n\n![Known-ground-truth demo: naive release is biased exactly when the leak is strong; the gate routes that signal to the deadline and its bias is exactly zero, while benign signals still release at ~36% completeness](https://raw.githubusercontent.com/MaxWellApexLab/pit-release-gate/master/docs/assets/demo_bias.png)\n\n*The shipped fixed-seed demo, where the right answer is planted: naive early\nrelease carries a systematic bias of −0.386 on the strong-leak signal; the gate\nroutes it to the deadline (bias exactly 0.0) while releasing the two benign\nsignals at 36–39% completeness. `tests/test_reproduces_paper.py` pins these\nnumbers; [`tools/make_readme_chart.py`](tools/make_readme_chart.py) redraws\nthis figure from the live demo.*\n\n**You need this if:**\n\n- you build **same-period cross-sectional signals** — industry-adjusted ratios,\n  cross-sectional ranks, peer medians — on entities that report on their own\n  schedule;\n- you **rebuild panels from as-filed sources** (EDGAR `companyfacts`, raw\n  filings) instead of using a vendor's curated release;\n- you own a **feature-store pipeline** where an as-of join reads whatever has\n  arrived by *t*;\n- you want a **per-signal susceptibility number** published next to every\n  released signal, the way a standard error is.\n\n**Not for you if** you are hunting look-ahead bugs in a backtest engine, or your\ndata has no arrival times — that is a different failure mode\n([scope statement](https://github.com/MaxWellApexLab/pit-audit-registry#what-gets-screened)).\n\n**No telemetry — structurally, not merely by default:** no module in this\npackage imports a transport, and [a test enforces that over every module](tests/test_export.py).\n\n## Install\n\n```bash\npip install pit-release-gate\n```\n\nRequires Python 3.10+ (`numpy`, `pandas`, `scipy`).\n\n## Quickstart (30 seconds)\n\n```python\nimport numpy as np\nfrom pit_release_gate import SusceptibilityGate, ReleaseController, make_group\n\nrng = np.random.default_rng(0)\n\n# 1. Fit the susceptibility gate on prior COMPLETED periods (honest estimation:\n#    never on the period being gated — its cross-section is still incomplete).\ntrain = [make_group(c_a=0.3, c_x=0.7, rng=rng) for _ in range(10)]\ngate = SusceptibilityGate(threshold=0.10)\nrho = gate.fit_trailing(train)\n\n# 2. Gate a fresh, live period with the frozen estimate.\ncontroller = ReleaseController(gate=gate)\nlive = make_group(c_a=0.3, c_x=0.7, rng=rng)\ndecision = controller.run_until_release(live, policy=\"gated\")\n\nprint(f\"rho_hat={rho:+.3f}  ->  {decision.action} \"\n      f\"at completeness {decision.completeness:.0%} ({decision.policy})\")\n```\n\nTo gate your own data, build an `AsOfDataStore` from your design matrix, signal\nvalues, and per-entity filing-arrival times, then call\n`ReleaseController.decide(store, t)` at each evaluation time — it returns\n`WITHHOLD`, `REWEIGHT_RELEASE`, or `RELEASE` plus the released values.\n\n## Screen your own panel\n\nOne long table — one row per (entity, period) — and one call. The table can be\na pandas DataFrame, a polars DataFrame, a pyarrow Table, or a dict of arrays:\ncolumns are read by duck typing, so the screen itself depends on no dataframe\nlibrary.\n\n```python\nfrom pit_release_gate import screen_dataframe\n\nrecord = screen_dataframe(\n    panel,                      # columns: period, arrival, value, size\n    value=[\"accruals\", \"roa\"],  # one signal or several\n    trailing_k=5,               # fit on 5 prior COMPLETED periods, then freeze\n)\nfor s in record[\"signals\"]:\n    print(s[\"name\"], s[\"verdict\"], s[\"periods_flagged\"], \"/\", s[\"periods_screened\"])\n```\n\nOr without writing any Python:\n\n```bash\npit-release-gate --csv panel.csv --value accruals --value roa --export results.json\n```\n\n```text\nscreened panel.csv: 2 signal(s), trailing_k=5, threshold=0.1\n  signal                    periods  flagged   mean rho  max |rho|  phi_req  verdict\n  accruals                        7        7    -0.8721     0.8841    1.000  susceptible\n  roa                             7        0    +0.0268     0.0564    0.377  benign\n  totals: 1 benign, 1 susceptible, 14 signal-cycles screened\n```\n\nThis is the same frozen protocol the [published audits](https://github.com/MaxWellApexLab/pit-audit-registry)\nuse: the estimate applied to a period is never fitted on that period, and the\nfirst `trailing_k` periods are used for fitting only. The output is a\n`pit-screen-results` v1.0 record — the file a *screened with* badge should\npoint at.\n\n**One caveat, stated up front.** A verdict fires if any single screened period\ncrosses the threshold, so it inherits that period's sampling noise\n(roughly `1 / sqrt(trailing_k x entities_per_period)`). On a small panel,\na reading just over the threshold may be noise. Establish your noise floor\nfirst — screen a signal you expect to be unexposed, or shuffle arrival order\nwithin periods and re-screen — before treating a marginal verdict as a finding.\n\n## What this catches that your current tools don't\n\n| guarantee | as-of join / bitemporal store | purged & embargoed CV | **pit-release-gate** |\n|---|---|---|---|\n| No value was read before it was available | ✅ | — | assumed as input (bring your arrival times) |\n| Train and test don't overlap through time | — | ✅ | — |\n| The **set of entities** present at *t* was not selected on the disturbance | ❌ | ❌ | **✅ measured per signal (ρ̂), gated per signal** |\n\nA point-in-time-correct join over an incomplete cross-section is a correct join\nover a biased sample. [Statement of need](#statement-of-need) has the full\nargument; the\n[as-of join methodology page](https://github.com/MaxWellApexLab/pit-audit-registry/blob/main/methodology/2026-08_feast-pit-join/report.md)\nhas the measured demonstration.\n\n## API overview\n\nFive public components, all importable from the top-level `pit_release_gate` package:\n\n| component | what it does |\n|---|---|\n| [`AsOfDataStore`](src/pit_release_gate/store.py) | Holds one period's as-filed records for a cross-sectional group: design matrix, signal values, and a filing-arrival time per entity. |\n| [`CompletenessMonitor`](src/pit_release_gate/monitor.py) | Reports the arrived fraction at an evaluation time, plus a composition-shift gauge for the arrived subset. |\n| [`SusceptibilityGate`](src/pit_release_gate/gate.py) | Estimates ρ̂, the partial correlation between filing latency and the complete-cross-section residual given observables. `fit_trailing` enforces the honest-estimation contract: prior *completed* periods only. |\n| [`PropensityReweighter`](src/pit_release_gate/reweight.py) | Inverse-filing-propensity weights. Included to make a negative result executable: reweighting on observables corrects composition, but cannot remove selection on the disturbance. |\n| [`ReleaseController`](src/pit_release_gate/controller.py) | Maps \\|ρ̂\\| to a required completeness `φ_req = min(1, φ_min + κ·\\|ρ̂\\|)` and returns `WITHHOLD` / `REWEIGHT_RELEASE` / `RELEASE` at each evaluation time. |\n\n`make_group`, `run_demo` and `demo` ([`simulate.py`](src/pit_release_gate/simulate.py))\ngenerate and run the known-ground-truth worked example described below.\n\n## The known-ground-truth demo\n\nThe package ships a self-contained worked example with a *planted* leakage strength,\nso the right answer is known exactly and no licensed data is needed:\n\n```bash\npit-release-gate            # or: python -m pit_release_gate\n```\n\nReal output, abridged to the signal the gate exists for:\n\n```text\nStrong-leak  (c_a=1.0, c_x=0.7)   rho_trailing=-0.868 (fitted ex ante)  (SUSCEPTIBLE -> wait)\n  policy        comp% [95%CI]    flip% [95%CI]   biasB(signed) [CI]   route\n  naive           35 ± 0.0      63.6 ± 2.8     -0.386 ±0.037   naive\n  deadline       100 ± 0.0       0.0 ± 0.0     +0.000 ±0.000   deadline\n  gated          100 ± 0.0       0.0 ± 0.0     +0.000 ±0.000   gated(phi_req=1.00)  <-- gated\n```\n\nIt compares five release policies (`naive`, `threshold`, `reweight`, `deadline`,\n`gated`) on four signal types. Headline behavior:\n\n| signal | susceptibility ρ̂ | gated releases at | gated bias |\n|---|---|---|---|\n| Clean | ≈ +0.005 (benign) | **36%** completeness | ≈ 0 |\n| Composition (selection on observables only) | ≈ −0.036 (benign) | **39%** completeness | ≈ 0 |\n| Mild leak | ≈ −0.53 | 88% completeness | −0.099 (naive: −0.319) |\n| Strong leak | ≈ −0.87 | 100% (deadline) | **exactly 0.0** (naive: −0.386) |\n\nA sensitivity sweep of the policy slope κ shows the timeliness–bias dial:\nκ = 0.5 → release at 59% completeness (bias −0.229); κ = 1.0 → 83% (−0.118);\nκ = 2.0 → 100% (bias exactly 0). The demo is deterministic (fixed seed), and\n`tests/test_reproduces_paper.py` asserts these numbers.\n\n## Statement of need\n\nWhen the entities of a cross-section report on staggered dates — companies filing\nfinancial statements are the canonical case — any same-period cross-sectional signal\ncomputed before the last filer arrives is estimated from an incomplete, and possibly\n*selectively* incomplete, cross-section. If filing timing depends on the very\ndisturbance the signal measures, releasing early produces a systematic bias\n(incomplete-cross-section leakage), while a blanket wait-for-the-deadline rule removes\nthe bias at a timeliness cost paid by every signal, biased or not.\n\nPoint-in-time discipline in ML pipelines currently rests on tooling that answers one\nquestion: *was this value readable at time t?* Feature-store as-of joins, bitemporal\nand vintage-aware storage, and purged or embargoed cross-validation all enforce\nread-time correctness, and they do it well.\n\nNone of them answers a second question: given that every value read was legitimately\nreadable, was the *set* of entities that had reported by t a selected sample? An\nas-of join over an incomplete cross-section is a correct join over a biased sample.\nThe two failures need different remedies — the first is fixed by timestamp hygiene,\nthe second only by waiting or by an explicit correction. Researchers building\ncross-sectional signals on staggered-arrival panels have had no routine, per-signal\nscreen for the second. `pit-release-gate` is that screen, plus the release controller\nthat acts on it: one `fit_trailing` call per signal, so reporting a susceptibility\nestimate alongside a released signal costs about as much as reporting a standard\nerror.\n\n## Export your screen result\n\n```bash\npit-release-gate --export results.json\n```\n\nwrites a `pit-screen-results` v1.0 record: per screened signal, how many periods\nwere screened, how many the measure flagged, mean and max ρ̂, the required\ncompleteness that was assigned, and the verdict (`benign` / `susceptible`), plus\nthe five settings that produced those verdicts. It is the file a *screened with*\nbadge should point at. The format is a standalone versioned interchange spec —\n[`docs/results-schema.md`](docs/results-schema.md) — that any other tool is free\nto emit or consume.\n\n**`--export` is fully offline**: it writes a local file and makes no network\ncall. Records carry summary statistics only — never input rows, file paths,\nusernames, hostnames, or any environment detail beyond the tool version — and no\nclock is read while building one, so the same screen always exports byte-identical\nbytes.\n\nWhere the record goes afterwards is entirely your business — commit it next to\nyour badge, publish it, or keep it. This tool does not send it anywhere. There is\nno background thread, no `atexit` hook, no anonymous usage counter, and nothing\nto opt out of.\n\nProgrammatic use, for screens on your own data:\n\n```python\nfrom pit_release_gate import build_results, screen_config, summarize_signal, validate_results\n\nsig = summarize_signal(\"accruals\", rhos=[...], phi_reqs=[...], rho_threshold=0.10)\nrecord = build_results([sig], screen_config(0.10, 0.35, 1.0, trailing_k=8, min_entities=6))\nassert validate_results(record) == []\n```\n\n## External references\n\n- Listed in [awesome-quant](https://github.com/wilsonfreitas/awesome-quant)\n  (Factor Analysis section).\n- The worked pandas example in the docs was contributed by an external\n  contributor ([#9](https://github.com/MaxWellApexLab/pit-release-gate/pull/9)).\n- The output record format is a separately versioned public spec\n  ([`docs/results-schema.md`](docs/results-schema.md)) so other tools can emit\n  or consume screen results without importing this package.\n- Seen in the wild: the gate and controller were read line by line in\n  QMX's systematic survey of backtest-safety tooling. Their quality\n  verdict: \"clean, small, and does real statistics ... worth reading as a\n  design reference\". The selection-on-arrival distinction now sits in\n  their design ledger as [row 78](https://github.com/MubarakHimself/QMX/blob/af6628888fb8901bf9e877cbd07e438dbb0f39b4/workroom/reference/03-wave2-supplement.md).\n  No formal citation, and none needed; traveling is the point.\n\n## Papers\n\nThe method and its evaluation are developed in three public preprints\n(paper 3 is under review at an IEEE conference; papers are self-archived\nwith DOIs pending journal publication):\n\n1. **Correct-by-Construction Factor Computation: A Verifiably Point-in-Time Engine\n   for Tradeable Signals** — [doi:10.6084/m9.figshare.32952482](https://doi.org/10.6084/m9.figshare.32952482)\n2. **Measuring Incomplete-Cross-Section Leakage: A Matched Placebo, a Susceptibility\n   Screen, and Evidence from Taiwan and US As-Filed Data** — [doi:10.6084/m9.figshare.33061955](https://doi.org/10.6084/m9.figshare.33061955)\n3. **Susceptibility-Graded Release Control: Preventing Incomplete-Cross-Section\n   Leakage in Financial Machine-Learning Pipelines without a Blanket Timeliness\n   Penalty** — [doi:10.6084/m9.figshare.33158615](https://doi.org/10.6084/m9.figshare.33158615)\n\nThis package is the reference implementation of paper 3's release controller; its\ndemo reproduces the paper's controlled experiment.\n\n## Badge\n\nIf you have run the susceptibility screen on your own data — whatever the result — you\nare welcome to say so:\n\n```markdown\n[![screened with pit-release-gate](https://img.shields.io/badge/screened%20with-pit--release--gate-blue)](https://github.com/MaxWellApexLab/pit-release-gate)\n```\n\nThe badge reads **screened with**, not *passed* — it states that the screen was run, the\nsame way a formatter badge states that the formatter was run. A benign result and a\nsusceptible result are equally worth badging; the second one arguably more, because it\nmeans the screen found something and your pipeline now waits for it.\n\n**Make it point at something.** A badge is worth reading only if there is evidence behind\nit. Commit your screen output — `pit-release-gate --export results.json` produces exactly\nthat file: which signals came out benign, which came out susceptible, and the required\ncompleteness each was assigned — and link the badge at it rather\nthan at this repo. A worked example is the OSAP screen in the\n[PIT audit registry](https://github.com/MaxWellApexLab/pit-audit-registry/blob/main/audits/2026-08_osap/report.md).\n\n**Related:** the [PIT Hygiene pledge](https://github.com/MaxWellApexLab/pit-hygiene) is a\nbroader, tool-neutral statement about how a staggered-arrival pipeline is built; this badge\nis the narrower statement that this particular screen was run.\n\n## Cite this\n\nSee [`CITATION.cff`](CITATION.cff). If you use this software, please cite paper 3:\n\n```bibtex\n@article{wu2026releasecontrol,\n  title  = {Susceptibility-Graded Release Control: Preventing Incomplete-Cross-Section\n            Leakage in Financial Machine-Learning Pipelines without a Blanket\n            Timeliness Penalty},\n  author = {Wu, Kuan-Ta and Wu, Kuan-I},\n  year   = {2026},\n  doi    = {10.6084/m9.figshare.33158615}\n}\n```\n\n## Community guidelines\n\n- **Report a bug or request a feature:** open an issue at\n  [github.com/MaxWellApexLab/pit-release-gate/issues](https://github.com/MaxWellApexLab/pit-release-gate/issues).\n- **Contribute:** see [CONTRIBUTING.md](CONTRIBUTING.md) for the development setup,\n  test requirements, and pull-request process.\n- **Get help:** open an issue with a minimal reproducing example, or email\n  maxwellapexlab@proton.me.\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n\nAn additional patent grant covers this implementation — see [PATENTS](PATENTS).\nMax Well Apex LLC holds pending U.S. patent applications on techniques this\nsoftware implements; the PATENTS file grants a royalty-free license to the\nclaims necessarily practiced by this implementation, with the customary\ntermination-on-litigation clause. In short: using, modifying, and shipping\nthis code is safe; the grant follows the Go project's PATENTS model.\n\n---\n\nMax Well Apex LLC — maxwellapexlab@proton.me\n"}</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/18.0.13/lib/marked.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.15/purify.min.js"></script>
 
 <script>
 (function () {
@@ -312,32 +275,54 @@
   }
 
   // ---------------------------------------------------------------
-  // Status panel: fills itself from the Worker's GET /latest (hits time +
-  // the three server-side receipt titles) with no tap needed, and polls
-  // GET /binder separately to wire the "open" link and the footer's Live
-  // notebook link once a pre-warmed session is ready. No window.open / no
-  // auto-navigation anywhere: these calls only update text and href.
+  // Result card state: filled from GET /latest (server-verified release,
+  // Binder run) when that endpoint answers, and from the in-browser Stage 1
+  // download receipt (below) otherwise. Polls /latest every 5 s for two
+  // minutes. No window.open / no auto-navigation anywhere: these calls only
+  // update text, an href, and a details/pre body.
   // ---------------------------------------------------------------
+  var state = { serverRelease: null, clientReceipt: null, binderTs: null, binderUrl: null };
+
   function fmtTs(iso) {
-    if (!iso) return 'not yet';
+    if (!iso) return 'just now';
     try { return new Date(iso).toLocaleString(); } catch (e) { return iso; }
+  }
+
+  function renderReleaseLine() {
+    var el = document.getElementById('lineRelease');
+    if (!el) return;
+    if (state.serverRelease) {
+      el.textContent = 'Release fetched and checksum-verified against PyPI, ' + fmtTs(state.serverRelease.ts) +
+        (state.serverRelease.match === false ? ' (checksum did not match)' : '');
+    } else if (state.clientReceipt) {
+      el.textContent = 'Release fetched and checksum-verified against PyPI, ' + fmtTs(state.clientReceipt.ts) +
+        (state.clientReceipt.ok ? '' : ' (checksum did not match)');
+    } else {
+      el.textContent = 'Verifying the release against PyPI...';
+    }
+  }
+
+  function renderBinderLine() {
+    var el = document.getElementById('lineBinder');
+    if (!el) return;
+    el.textContent = state.binderTs
+      ? ('Live notebook started on mybinder.org, ' + fmtTs(state.binderTs))
+      : 'Starting a live notebook on mybinder.org...';
+    if (state.binderUrl) {
+      var a = document.createElement('a');
+      a.href = state.binderUrl; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'open';
+      el.appendChild(a);
+    }
   }
 
   function refreshBinderLink() {
     if (!WORKER_BASE) return;
     fetch(WORKER_BASE + '/binder').then(function (r) { return r.json(); }).then(function (data) {
       if (data && data.url) {
+        state.binderUrl = data.url;
+        renderBinderLine();
         var footerLink = document.getElementById('footerBinderLink');
-        if (footerLink) {
-          footerLink.href = data.url;
-          footerLink.textContent = 'Live notebook (ready now)';
-        }
-        var binderEl = document.getElementById('statusBinder');
-        if (binderEl && !binderEl.querySelector('a')) {
-          var a = document.createElement('a');
-          a.href = data.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = ' (open)';
-          binderEl.appendChild(a);
-        }
+        if (footerLink) footerLink.href = data.url;
       }
     }).catch(function () {});
   }
@@ -345,29 +330,20 @@
   function refreshStatus() {
     if (!WORKER_BASE) return;
     fetch(WORKER_BASE + '/latest').then(function (r) { return r.json(); }).then(function (data) {
-      var hitEl = document.getElementById('statusHit');
-      if (hitEl) hitEl.textContent = fmtTs(data.hits && data.hits.ts);
-
       var rel = data.receipts && data.receipts['receipt: download (server)'];
-      var relEl = document.getElementById('statusRelease');
-      if (relEl) {
-        relEl.textContent = rel
-          ? fmtTs(rel.ts) + (rel.match === false ? ' (checksum mismatch)' : ' (verified)')
-          : 'not yet';
-      }
-
-      var paper = data.receipts && data.receipts['figshare download'];
-      var paperEl = document.getElementById('statusPaper');
-      if (paperEl) paperEl.textContent = paper ? fmtTs(paper.ts) : 'not yet';
+      if (rel) state.serverRelease = { ts: rel.ts, match: rel.match };
 
       var binder = data.receipts && data.receipts['binder executed'];
-      var binderEl = document.getElementById('statusBinder');
-      if (binderEl) binderEl.textContent = binder ? fmtTs(binder.ts) : 'not yet';
+      if (binder) state.binderTs = binder.ts;
 
+      renderReleaseLine();
+      renderBinderLine();
       refreshBinderLink();
     }).catch(function () {});
   }
 
+  renderReleaseLine();
+  renderBinderLine();
   refreshStatus();
   var statusPolls = 0;
   var statusTimer = setInterval(function () {
@@ -377,130 +353,19 @@
   }, 5000);
 
   // ---------------------------------------------------------------
-  // Render: reference run (static, precomputed, shown at 0s)
+  // Scenario card details: exact verdict text, precomputed, unchanged.
   // ---------------------------------------------------------------
-  function el(tag, cls, text) {
-    var e = document.createElement(tag);
-    if (cls) e.className = cls;
-    if (text !== undefined) e.textContent = text;
-    return e;
-  }
-
-  function kv(container, pairs) {
-    pairs.forEach(function (p) {
-      var k = el('div', 'k', p[0]);
-      var v = el('div', 'v', p[1]);
-      container.appendChild(k);
-      container.appendChild(v);
-    });
-  }
-
-  document.getElementById('refRunHeading').textContent =
-    'Reference run on the author’s machine, ' + DATA.reference_run_utc + ' UTC';
-
-  kv(document.getElementById('refRunMeta'), [
-    ['Package', 'pit-release-gate ' + DATA.pkg_version + ' (source: pip install from PyPI, native venv)'],
-    ['Wheel sha256', DATA.wheel_sha256],
-    ['Sdist sha256', DATA.sdist_sha256],
-    ['Python', DATA.python_version + ' on ' + DATA.platform],
-  ]);
-
-  kv(document.getElementById('refTestSummary'), [
-    ['Test method', DATA.test_method],
-    ['Result', DATA.test_passed + ' passed, ' + DATA.test_failed + ' failed, of ' + DATA.test_count],
-    ['Time', DATA.test_elapsed_s.toFixed(1) + 's'],
-  ]);
-  document.getElementById('refTestList').textContent =
-    DATA.test_names.map(function (n) { return 'PASSED  ' + n; }).join('\n');
-
-  document.getElementById('refDefaultScreen').textContent = DATA.default_screen_text;
-
-  var refScenariosEl = document.getElementById('refScenarios');
-  DATA.scenario_order.forEach(function (key) {
+  var verdictEls = { llm_eval: 'verdictLlmEval', ab_test: 'verdictAbTest', retention: 'verdictRetention' };
+  Object.keys(verdictEls).forEach(function (key) {
     var s = DATA.scenarios[key];
-    var box = document.createElement('details');
-    box.className = 'card';
-    box.appendChild(el('summary', null, s.label));
-    var body = el('div', 'details-body');
-    body.appendChild(el('p', 'note', s.verdict));
-    var det = document.createElement('details');
-    var sum = el('summary', null, 'Full receipt');
-    det.appendChild(sum);
-    var pre = el('pre', 'box', s.receipt);
-    det.appendChild(pre);
-    body.appendChild(det);
-    box.appendChild(body);
-    refScenariosEl.appendChild(box);
+    var el = document.getElementById(verdictEls[key]);
+    if (s && el) el.textContent = s.verdict;
   });
 
   // ---------------------------------------------------------------
-  // Render: paper cards
-  // ---------------------------------------------------------------
-  var paperCardsEl = document.getElementById('paperCards');
-  DATA.papers.forEach(function (p) {
-    var card = document.createElement('details');
-    card.className = 'card';
-    card.appendChild(el('summary', null, p.title));
-    var body = el('div', 'details-body');
-    body.appendChild(el('p', 'byline', p.authors.join(', ') + ' (' + p.year + ')'));
-    var abs = el('div', 'abstract');
-    if (p.abstract_html) {
-      // Content is our own published-author metadata pulled from figshare's API
-      // or Crossref's DOI registration for our own SSRN posting, sanitized before
-      // insertion.
-      abs.innerHTML = DOMPurify.sanitize(p.abstract_html);
-    } else {
-      abs.appendChild(el('p', null, 'Abstract not available from an automated source; see the SSRN link.'));
-    }
-    body.appendChild(abs);
-    var links = el('div', 'links');
-    var a1 = document.createElement('a');
-    a1.href = p.ssrn_url; a1.target = '_blank'; a1.rel = 'noopener'; a1.textContent = 'SSRN abstract';
-    links.appendChild(a1);
-    var a2 = document.createElement('a');
-    a2.href = p.doi_url; a2.target = '_blank'; a2.rel = 'noopener'; a2.textContent = 'DOI ' + p.doi;
-    links.appendChild(a2);
-    if (p.figshare_url) {
-      var a3 = document.createElement('a');
-      a3.href = p.figshare_url; a3.target = '_blank'; a3.rel = 'noopener'; a3.textContent = 'figshare record';
-      links.appendChild(a3);
-    }
-    body.appendChild(links);
-    body.appendChild(el('div', 'note', 'Source: ' + p.abstract_source + '.'));
-    card.appendChild(body);
-    paperCardsEl.appendChild(card);
-  });
-
-  // SSRN inline status and the figshare PDF embed are static in the markup
-  // above: figshare's article-metadata endpoint (api.figshare.com) does not
-  // send an Access-Control-Allow-Origin header on this route, so a live
-  // client-side fetch would just fail with an opaque CORS error and add
-  // nothing; the download_url was resolved once, server-side, from
-  // https://api.figshare.com/v2/articles/32952482 at build time instead.
-  // The iframe embed itself is a plain resource load, not subject to CORS.
-
-  // ---------------------------------------------------------------
-  // README card: GitHub API raw fetch, marked + DOMPurify, static fallback
-  // ---------------------------------------------------------------
-  function renderReadme(markdownText) {
-    var html = DOMPurify.sanitize(marked.parse(markdownText));
-    document.getElementById('readmeBody').innerHTML = html;
-  }
-  fetch('https://api.github.com/repos/MaxWellApexLab/pit-release-gate/readme', {
-    headers: { 'Accept': 'application/vnd.github.raw' },
-  }).then(function (r) {
-    if (!r.ok) throw new Error('status ' + r.status);
-    return r.text();
-  }).then(function (text) {
-    renderReadme(text);
-  }).catch(function () {
-    renderReadme(DATA.readme_md);
-    var note = el('div', 'note', 'Live GitHub API fetch failed or rate-limited; showing the copy committed with this page.');
-    document.getElementById('readmeDetails').appendChild(note);
-  });
-
-  // ---------------------------------------------------------------
-  // Stage 1: pure JS download receipt, no WebAssembly
+  // Stage 1: pure JS download receipt, no WebAssembly. Runs immediately
+  // and silently; feeds the result card's release line (fallback, used
+  // only if the server hasn't answered yet) and its "Show details" text.
   // ---------------------------------------------------------------
   function toHex(buf) {
     var bytes = new Uint8Array(buf);
@@ -510,7 +375,6 @@
   }
 
   function runStage1() {
-    var statusEl = document.getElementById('stage1Status');
     var receiptEl = document.getElementById('stage1Receipt');
     return fetch('https://pypi.org/pypi/pit-release-gate/0.1.0/json')
       .then(function (r) { return r.json(); })
@@ -543,18 +407,17 @@
               'Timestamp (UTC)         : ' + now,
               'User agent              : ' + navigator.userAgent,
             ];
-            receiptEl.textContent = lines.join('\n');
-            receiptEl.hidden = false;
-            statusEl.textContent = (wheelMatch && sdistMatch)
-              ? 'Downloaded and verified in your browser, no WebAssembly used.'
-              : 'Downloaded, but a checksum did not match. See the receipt.';
+            if (receiptEl) receiptEl.textContent = lines.join('\n');
+            state.clientReceipt = { ts: now, ok: wheelMatch && sdistMatch };
+            renderReleaseLine();
             report('receipt: download', 'inbox_tray', lines.join('\n'));
             return { wheelMatch: wheelMatch, sdistMatch: sdistMatch };
           });
         });
       })
       .catch(function (e) {
-        statusEl.textContent = 'Stage 1 failed: ' + (e && e.message ? e.message : String(e));
+        var el = document.getElementById('lineRelease');
+        if (el && !state.serverRelease) el.textContent = 'Could not verify the release from this browser.';
       });
   }
   var stage1T0 = performance.now();
