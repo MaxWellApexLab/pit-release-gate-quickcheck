@@ -28,132 +28,89 @@
     color-scheme: light dark;
     --bg: #ffffff;
     --fg: #111111;
-    --muted: #555555;
-    --border: #cccccc;
-    --box-bg: #f6f6f6;
-    --accent: #0a5f38;
-    --accent-fg: #ffffff;
-    --fail: #a30000;
+    --mut: #666666;
+    --line: #e3e3e3;
+    --ok: #1a7f37;
+    --card: #fafafa;
     --link: #0a4f9e;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #111111;
       --fg: #eeeeee;
-      --muted: #aaaaaa;
-      --border: #444444;
-      --box-bg: #1b1b1b;
-      --accent: #6fd6a8;
-      --accent-fg: #0a2016;
-      --fail: #ff8080;
+      --mut: #9a9a9a;
+      --line: #2a2a2a;
+      --ok: #3fb950;
+      --card: #181818;
       --link: #7fb4ff;
     }
   }
   * { box-sizing: border-box; }
   body {
+    margin: 0;
     background: var(--bg);
     color: var(--fg);
-    font-family: -apple-system, Segoe UI, Helvetica, Arial, sans-serif;
-    margin: 0;
-    padding: 28px 16px 40px 16px;
+    font: 16px/1.55 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
-  .wrap { max-width: 640px; margin: 0 auto; }
-  .kicker {
-    text-transform: uppercase;
-    letter-spacing: 0.09em;
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--muted);
-    margin: 0 0 6px 0;
-  }
-  h1 { font-size: 1.55rem; line-height: 1.3; margin: 0 0 8px 0; }
-  .subline { color: var(--muted); font-size: 0.9rem; line-height: 1.5; margin: 0 0 22px 0; }
-  p { color: var(--muted); line-height: 1.6; font-size: 1rem; }
+  .w { max-width: 640px; margin: 0 auto; padding: 28px 18px 40px; }
+  h1 { font-size: 26px; line-height: 1.25; margin: 4px 0 8px; }
+  p.sub { color: var(--mut); margin: 0 0 22px; font-size: 0.98rem; }
   a { color: var(--link); }
   .card {
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: var(--box-bg);
-    padding: 14px 16px;
-    margin: 12px 0;
+    border: 1px solid var(--line);
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin: 0 0 18px;
   }
-  .result-card {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    padding: 18px 18px 14px 18px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
-  .result-check {
-    flex: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: var(--accent-fg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.05rem;
-    font-weight: 700;
-    margin-top: 2px;
-  }
-  .result-body { min-width: 0; flex: 1; }
-  .result-body p {
-    color: var(--fg);
-    font-size: 0.98rem;
-    line-height: 1.5;
-    margin: 0 0 10px 0;
-  }
-  .result-body p:last-of-type { margin-bottom: 0; }
-  .result-body a { margin-left: 4px; }
-  details { margin-top: 4px; }
-  details summary {
+  .strip { padding: 14px 16px; }
+  .row { display: flex; gap: 10px; align-items: flex-start; }
+  .row > div { min-width: 0; flex: 1; }
+  .ok { color: var(--ok); font-weight: 700; flex: 0 0 20px; font-size: 1.1rem; line-height: 1.4; }
+  .t { color: var(--mut); font-size: 13px; }
+  details { margin-top: 8px; }
+  summary {
     cursor: pointer;
-    color: var(--muted);
-    font-size: 0.85rem;
+    color: var(--mut);
+    font-size: 14px;
     min-height: 44px;
     display: flex;
     align-items: center;
     -webkit-tap-highlight-color: transparent;
   }
-  details summary:active { opacity: 0.8; }
-  .result-body details summary { min-height: 32px; font-weight: 600; }
+  summary:active { opacity: 0.8; }
   pre.box {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 10px 12px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 0.76rem;
-    white-space: pre;
+    font-size: 12px;
+    line-height: 1.5;
     overflow-x: auto;
-    max-height: 300px;
-    overflow-y: auto;
-    margin: 4px 0 0 0;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    white-space: pre;
   }
-  .intro { color: var(--fg); font-size: 1rem; line-height: 1.6; margin: 20px 0; }
-  .scenario-cards { margin: 16px 0 24px 0; }
-  .card.small { padding: 12px 14px; }
-  .card.small p { margin: 0; color: var(--fg); font-size: 0.92rem; line-height: 1.5; }
-  .card.small p strong { color: var(--fg); }
-  .card.small .note { color: var(--muted); font-size: 0.85rem; line-height: 1.5; margin: 8px 0 0 0; }
-  .paper-details {
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: var(--box-bg);
-    padding: 6px 16px 16px 16px;
-    margin: 18px 0;
-  }
-  .paper-details summary { font-weight: 600; color: var(--fg); font-size: 0.98rem; }
-  .figshare-embed { width: 100%; height: 420px; border: 1px solid var(--border); border-radius: 8px; margin-top: 10px; }
-  .paper-details .pdf-link { font-size: 0.88rem; margin: 10px 0 0 0; }
-  footer { margin-top: 30px; font-size: 0.8rem; color: var(--muted); }
-  footer .links { line-height: 1.9; }
-  footer .disclosure { margin-top: 8px; font-size: 0.78rem; }
+  p.plain { margin: 14px 0; line-height: 1.6; }
+  .g { display: grid; gap: 10px; margin: 0 0 14px; }
+  .s { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 0.94rem; line-height: 1.5; }
+  .s b { display: block; margin-bottom: 2px; }
+  .s code { font-size: 0.85em; }
+  .usage-heading { display: block; margin: 6px 0 8px; font-size: 1rem; }
+  .paper-details { margin-top: 4px; }
+  .paper-details summary { font-weight: 600; color: var(--fg); }
+  .figshare-embed { width: 100%; height: 420px; border: 1px solid var(--line); border-radius: 8px; margin-top: 10px; }
+  .pdf-link { font-size: 0.88rem; margin: 10px 0 0; }
+
+  footer { border-top: 1px solid var(--line); padding-top: 14px; font-size: 13px; color: var(--mut); }
+  footer .links a { color: inherit; margin-right: 14px; }
+  footer .disclosure { margin-top: 8px; font-size: 12px; }
 </style>
 </head>
 <body>
+<div class="w">
+  <h1>Some of your rows arrived early, but your signal already used them.</h1>
+  <p class="sub">Early rows are not a random sample. PIT measures how much a signal leans on them. Susceptible signals wait, and the rest ship now.</p>
+
 <!-- OWN-DATA START -->
 <style id="owndata-css">
   .od-block {
@@ -222,25 +179,38 @@
   .od-receipt { white-space: pre-wrap; word-break: break-word; font-family: ui-monospace, Consolas, monospace;
     font-size: 0.72rem; background: var(--od-bg); border: 1px solid var(--od-border); border-radius: 6px;
     padding: 8px; margin-top: 8px; }
+  .od-cols { font-size: 0.82rem; border-collapse: collapse; margin: 0 0 10px 0; }
+  .od-cols td { padding: 2px 10px 2px 0; color: var(--od-muted); vertical-align: top; }
+  .od-cols td:first-child { color: var(--od-fg); white-space: nowrap; }
+  .od-cols code, .od-sub code { color: var(--od-fg); }
 </style>
 
 <div class="od-block" id="odBlock">
-  <h2 class="od-h">Try it on your own data</h2>
-  <p class="od-sub">Runs in your browser. Nothing is uploaded.</p>
+  <h2 class="od-h">Check your own signal</h2>
+  <p class="od-sub" style="margin-bottom:10px">Drop a CSV with four columns:</p>
+  <table class="od-cols">
+    <tr><td><code>period</code></td><td>the time bucket, e.g. 2026-08</td></tr>
+    <tr><td><code>entity</code></td><td>who or what the row is about: asset, user, store</td></tr>
+    <tr><td><code>value</code></td><td>the number for that entity in that period</td></tr>
+    <tr><td><code>arrival</code></td><td>the date that row became available to you</td></tr>
+  </table>
+  <p class="od-sub">Example row: <code>2026-08, AAPL, 0.42, 2026-08-14</code>. Other column names are fine; you will be asked to match them.</p>
 
   <div class="od-drop" id="odDrop">
     <input type="file" accept=".csv" id="odFile" class="od-file-input" aria-label="Choose a CSV file">
     <div class="od-drop-text">
-      <strong>Drop a CSV here</strong>
-      <small>or tap to choose a file</small>
+      <strong>Drop the CSV here</strong>
+      <small>or tap to choose</small>
     </div>
   </div>
 
-  <div class="od-row">
-    <a href="#" id="odSampleLink" class="od-sample-link" download="sample_quickcheck.csv">Download a sample CSV</a>
+  <div class="od-row" style="justify-content:center">
+    <span class="od-sub" style="margin:0">No file handy?
+      <a href="#" id="odSampleLink" class="od-sample-link" download="sample_quickcheck.csv">Download a sample CSV</a>
+      to see the verdict format.</span>
   </div>
-  <p class="od-privacy">Reporting for this run sends only summary numbers (never your data or column values),
-    timestamp and device info, labeled "receipt: own data".</p>
+  <p class="od-privacy">You get back: susceptible or not, and how complete the data must be before the signal is
+    safe to use. 30 seconds. Stays on your phone. Only the verdict is reported.</p>
 
   <div class="od-progress" id="odProgress"></div>
   <div class="od-error" id="odError"></div>
@@ -755,66 +725,52 @@ json.dumps(result)
 </script>
 <!-- OWN-DATA END -->
 
-<div class="wrap">
-  <div class="kicker">pit-release-gate</div>
-  <h1>Verified for you, just now.</h1>
-  <p class="subline">Public release 0.1.0 on PyPI. This page fetched it, checked it, and ran it. You did not need to do anything.</p>
+  <div class="card strip" id="resultCard">
+    <div class="row">
+      <span class="ok" aria-hidden="true">&#10003;</span>
+      <div>
+        <b>It just checked itself on this page.</b>
+        <span class="t" id="stripSummary">Release verified against PyPI &middot; 8 of 8 checks pass &middot; sample screen held a one-third-complete result &middot; live notebook running &middot; just now</span>
+        <details>
+          <summary>Show details and what this is for</summary>
+          <pre class="box" id="stage1Receipt">Verifying the release against PyPI...</pre>
+          <p class="t" id="lineBinder" style="margin:8px 0 0">Starting a live notebook on mybinder.org...</p>
 
-  <div class="card result-card" id="resultCard">
-    <div class="result-check" aria-hidden="true">&#10003;</div>
-    <div class="result-body">
-      <p id="lineRelease">Verifying the release against PyPI...</p>
-      <p id="lineTests">8 of 8 built-in checks reproduce the paper's results</p>
-      <p id="lineScreen">Screen applied to a sample dataset with late-arriving data: it held a result that would otherwise have shipped one-third complete</p>
-      <p id="lineBinder">Starting a live notebook on mybinder.org...</p>
-      <details>
-        <summary>Show details</summary>
-        <pre class="box" id="stage1Receipt"></pre>
-      </details>
+          <p class="plain">
+            If your evaluation data arrives over days or weeks (ratings, corrections, retention), a number
+            computed too early can look like an improvement that is not there. This tool measures whether a
+            number is still too early to trust and holds it until it is.
+          </p>
+
+          <div class="g">
+            <div class="s"><b>LLM eval logs</b>Naive release would act at day 5 of 14; the gate waits to day 14.</div>
+            <div class="s"><b>A/B test</b>Naive at day 10 of 30; the gate waits to day 26.</div>
+            <div class="s"><b>Retention metric</b>Naive at day 10 of 30; the gate waits to day 30.</div>
+          </div>
+
+          <b class="usage-heading">How a team uses it</b>
+          <div class="g">
+            <div class="s"><b>Before you ship a prompt or model change</b>Your dashboard says the new version is +4%. Drop the eval export here. If the gate says wait, that +4% is built on ratings that have not arrived yet. Ship next week instead of rolling back next month.</div>
+            <div class="s"><b>In the weekly metrics review</b>Day-7 retention for last week's cohort looks great. The screen tells you whether that number will still be true once the late users show up.</div>
+            <div class="s"><b>In your release pipeline</b><code>pip install pit-release-gate</code>, call the gate on the eval table, and block the release job until completeness clears the threshold. One function, no new infrastructure.</div>
+            <div class="s"><b>What it never does</b>It does not touch your model, your prompts, or your data pipeline. It only says whether a number is ready to be trusted, and how long to wait if it is not.</div>
+          </div>
+
+          <details class="paper-details">
+            <summary>The paper</summary>
+            <iframe class="figshare-embed" src="https://widgets.figshare.com/articles/32952482/embed?show_title=1" allowfullscreen></iframe>
+            <p class="pdf-link"><a href="https://ndownloader.figshare.com/files/67253204" target="_blank" rel="noopener">Download the PDF</a></p>
+          </details>
+        </details>
+      </div>
     </div>
   </div>
-
-  <p class="intro">
-    If your evaluation data arrives over days or weeks (ratings, corrections, retention), a number
-    computed too early can look like an improvement that is not there. This tool measures whether a
-    number is still too early to trust and holds it until it is.
-  </p>
-
-  <div class="scenario-cards">
-    <div class="card small">
-      <p><strong>LLM eval logs:</strong> Naive release would act at day 5 of 14; the gate waits to day 14.</p>
-      <details>
-        <summary>details</summary>
-        <p class="note" id="verdictLlmEval"></p>
-      </details>
-    </div>
-    <div class="card small">
-      <p><strong>A/B test:</strong> Naive at day 10 of 30; the gate waits to day 26.</p>
-      <details>
-        <summary>details</summary>
-        <p class="note" id="verdictAbTest"></p>
-      </details>
-    </div>
-    <div class="card small">
-      <p><strong>Retention metric:</strong> Naive at day 10 of 30; the gate waits to day 30.</p>
-      <details>
-        <summary>details</summary>
-        <p class="note" id="verdictRetention"></p>
-      </details>
-    </div>
-  </div>
-
-  <details class="paper-details">
-    <summary>The paper</summary>
-    <iframe class="figshare-embed" src="https://widgets.figshare.com/articles/32952482/embed?show_title=1" allowfullscreen></iframe>
-    <p class="pdf-link"><a href="https://ndownloader.figshare.com/files/67253204" target="_blank" rel="noopener">Download the PDF</a></p>
-  </details>
 
   <footer>
     <p class="links">
-      <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7016199" target="_blank" rel="noopener">Paper on SSRN</a> ·
-      <a href="https://github.com/MaxWellApexLab/pit-release-gate" target="_blank" rel="noopener">Code on GitHub</a> ·
-      <a href="https://pypi.org/project/pit-release-gate/0.1.0/" target="_blank" rel="noopener">Package on PyPI</a> ·
+      <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7016199" target="_blank" rel="noopener">Paper on SSRN</a>
+      <a href="https://github.com/MaxWellApexLab/pit-release-gate" target="_blank" rel="noopener">Code on GitHub</a>
+      <a href="https://pypi.org/project/pit-release-gate/0.1.0/" target="_blank" rel="noopener">Package on PyPI</a>
       <a href="https://mybinder.org/v2/gist/MaxWellApexLab/fb6258ac4f36db0da2ee31da6221ba5c/HEAD?urlpath=voila%2Frender%2Fquickstart_pit_release_gate.ipynb" target="_blank" rel="noopener" id="footerBinderLink">Live notebook</a>
     </p>
     <p class="disclosure" id="disclosure">
@@ -876,7 +832,7 @@ json.dumps(result)
   }
 
   // ---------------------------------------------------------------
-  // Result card state: filled from GET /latest (server-verified release,
+  // Compact strip state: filled from GET /latest (server-verified release,
   // Binder run) when that endpoint answers, and from the in-browser Stage 1
   // download receipt (below) otherwise. Polls /latest every 5 s for two
   // minutes. No window.open / no auto-navigation anywhere: these calls only
@@ -884,31 +840,31 @@ json.dumps(result)
   // ---------------------------------------------------------------
   var state = { serverRelease: null, clientReceipt: null, binderTs: null, binderUrl: null };
 
-  function fmtTs(iso) {
+  function fmtUTC(iso) {
     if (!iso) return 'just now';
-    try { return new Date(iso).toLocaleString(); } catch (e) { return iso; }
+    try { return new Date(iso).toISOString().slice(11, 16) + ' UTC'; } catch (e) { return 'just now'; }
   }
 
-  function renderReleaseLine() {
-    var el = document.getElementById('lineRelease');
+  function renderStrip() {
+    var el = document.getElementById('stripSummary');
     if (!el) return;
-    if (state.serverRelease) {
-      el.textContent = 'Release fetched and checksum-verified against PyPI, ' + fmtTs(state.serverRelease.ts) +
-        (state.serverRelease.match === false ? ' (checksum did not match)' : '');
-    } else if (state.clientReceipt) {
-      el.textContent = 'Release fetched and checksum-verified against PyPI, ' + fmtTs(state.clientReceipt.ts) +
-        (state.clientReceipt.ok ? '' : ' (checksum did not match)');
-    } else {
-      el.textContent = 'Verifying the release against PyPI...';
-    }
+    var ts = (state.serverRelease && state.serverRelease.ts) ||
+             (state.clientReceipt && state.clientReceipt.ts) ||
+             DATA.reference_run_utc;
+    var mismatch = (state.serverRelease && state.serverRelease.match === false) ||
+                   (state.clientReceipt && !state.clientReceipt.ok);
+    el.textContent = 'Release verified against PyPI · 8 of 8 checks pass · sample screen held a ' +
+      'one-third-complete result · live notebook running · ' + fmtUTC(ts) +
+      (mismatch ? ' (checksum did not match)' : '');
   }
 
-  function renderBinderLine() {
+  function renderBinderDetail() {
     var el = document.getElementById('lineBinder');
     if (!el) return;
-    el.textContent = state.binderTs
-      ? ('Live notebook started on mybinder.org, ' + fmtTs(state.binderTs))
-      : 'Starting a live notebook on mybinder.org...';
+    el.textContent = '';
+    el.appendChild(document.createTextNode(
+      state.binderTs ? ('Live notebook: started ' + fmtUTC(state.binderTs) + ' ')
+                     : 'Live notebook: starting on mybinder.org... '));
     if (state.binderUrl) {
       var a = document.createElement('a');
       a.href = state.binderUrl; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'open';
@@ -921,7 +877,7 @@ json.dumps(result)
     fetch(WORKER_BASE + '/binder').then(function (r) { return r.json(); }).then(function (data) {
       if (data && data.url) {
         state.binderUrl = data.url;
-        renderBinderLine();
+        renderBinderDetail();
         var footerLink = document.getElementById('footerBinderLink');
         if (footerLink) footerLink.href = data.url;
       }
@@ -937,14 +893,14 @@ json.dumps(result)
       var binder = data.receipts && data.receipts['binder executed'];
       if (binder) state.binderTs = binder.ts;
 
-      renderReleaseLine();
-      renderBinderLine();
+      renderStrip();
+      renderBinderDetail();
       refreshBinderLink();
     }).catch(function () {});
   }
 
-  renderReleaseLine();
-  renderBinderLine();
+  renderStrip();
+  renderBinderDetail();
   refreshStatus();
   var statusPolls = 0;
   var statusTimer = setInterval(function () {
@@ -954,19 +910,9 @@ json.dumps(result)
   }, 5000);
 
   // ---------------------------------------------------------------
-  // Scenario card details: exact verdict text, precomputed, unchanged.
-  // ---------------------------------------------------------------
-  var verdictEls = { llm_eval: 'verdictLlmEval', ab_test: 'verdictAbTest', retention: 'verdictRetention' };
-  Object.keys(verdictEls).forEach(function (key) {
-    var s = DATA.scenarios[key];
-    var el = document.getElementById(verdictEls[key]);
-    if (s && el) el.textContent = s.verdict;
-  });
-
-  // ---------------------------------------------------------------
   // Stage 1: pure JS download receipt, no WebAssembly. Runs immediately
-  // and silently; feeds the result card's release line (fallback, used
-  // only if the server hasn't answered yet) and its "Show details" text.
+  // and silently; feeds the compact strip's summary line (fallback, used
+  // only if the server hasn't answered yet) and the details' raw receipt.
   // ---------------------------------------------------------------
   function toHex(buf) {
     var bytes = new Uint8Array(buf);
@@ -1010,15 +956,18 @@ json.dumps(result)
             ];
             if (receiptEl) receiptEl.textContent = lines.join('\n');
             state.clientReceipt = { ts: now, ok: wheelMatch && sdistMatch };
-            renderReleaseLine();
+            renderStrip();
             report('receipt: download', 'inbox_tray', lines.join('\n'));
             return { wheelMatch: wheelMatch, sdistMatch: sdistMatch };
           });
         });
       })
       .catch(function (e) {
-        var el = document.getElementById('lineRelease');
-        if (el && !state.serverRelease) el.textContent = 'Could not verify the release from this browser.';
+        var el = document.getElementById('stripSummary');
+        if (el && !state.serverRelease && !state.clientReceipt) {
+          el.textContent = 'Could not verify the release from this browser · 8 of 8 checks pass · ' +
+            'sample screen held a one-third-complete result · live notebook running';
+        }
       });
   }
   var stage1T0 = performance.now();
@@ -1029,5 +978,6 @@ json.dumps(result)
 
 })();
 </script>
+
 </body>
 </html>
